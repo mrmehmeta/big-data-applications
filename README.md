@@ -1,2 +1,2 @@
-# big_data_applications
+# big-data-applications
 Big Data Applications final exam
