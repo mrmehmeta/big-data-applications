@@ -42,7 +42,7 @@ clc
 % PARAMETERS TO BE CHANGED
 
 % File name of desired FRED-MD vintage
-csv_in='2015-04.csv';
+csv_in='../current.csv';
 
 % Type of transformation performed on each series before factors are
 % estimated
@@ -87,6 +87,7 @@ final_year=final_datevec(1);
 % e.g. March 1970 is represented as 1970+3/12
 % Dates go from 1959:01 to final_year:final_month (see above)
 dates = (1959+1/12:1/12:final_year+final_month/12)';
+dates(733:739) = []
 
 % T = number of months in sample
 T=size(dates,1);
@@ -132,4 +133,3 @@ dates=dates(3:T,:);
 %   t10_mR2 = marginal R-squared corresponding to top 10 series
 %             that load most heavily on each factor 
 [R2,mR2,mR2_F,R2_T,t10_s,t10_mR2] = mrsq(Fhat,lamhat,ve2,series);
-

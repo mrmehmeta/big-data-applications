@@ -143,7 +143,7 @@ x1=isnan(x);
 % predict the original dataset.
 
 % Get unconditional mean of the non-missing values of each series
-mut=repmat(nanmean(x),T,1);
+mut=repmat(mean(x, "omitnan"),T,1);
 
 % Replace missing values with unconditional mean
 x2=x;

@@ -24,7 +24,7 @@ function [Y,n]=remove_outliers(X)
 % FUNCTION:
 
 % Calcualte median of each series
-median_X=nanmedian(X,1);
+median_X=median(X,1, "omitnan");
 
 % Repeat median of each series over all data points in the series
 median_X_mat=repmat(median_X,size(X,1),1);
