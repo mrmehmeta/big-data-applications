@@ -43,22 +43,13 @@
       };
       devShells.default = pkgs.mkShell {
         packages = with pkgs; [
-          rstudio
           R
           rPackages.tidyverse
-          rPackages.kableExtra
-          rPackages.GGally
-          rPackages.gridExtra
-          rPackages.rddensity
-          rPackages.modelsummary
-          rPackages.ggpubr
-          pandoc
+          rPackages.lubridate
+          rPackages.caret
         ];
         shellHook = ''
           nu
-          Rscript main.R
-          pandoc artifacts/gov_transfers.md -o artifacts/gov_transfers.typ
-          pandoc artifacts/gov_transfers_fuzziness.md -o artifacts/gov_transfers_fuzziness.typ
         '';
       };
     });
