@@ -1,0 +1,25 @@
+Write your name(s).
+
+Brief description of data
+
+Brief description of steps for cleaning data: 
+transformation to stationarity, dealing with missing values, standardization
+
+Choice between training and test sample
+
+Brief description of forecasting methods:
+
+AR (how do you select the number of lags?)
+Random walk
+OLS
+Ridge (how do you set the penalty?)
+Lasso  (how do you set the penalty?)
+Principal component regression (how do you choose the number of PC (factors)?)
+
+Results: Root Mean Squared Errors 
+
+Brief discussion of results. Why a given method is better than the others?
+
+Add graphs and tables as needed, add your code to the submission.
+
+File must be in pdf.
