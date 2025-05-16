@@ -31,20 +31,7 @@
         ];
 
         buildPhase = ''
-          mkdir -p artifacts
-          Rscript main.R
-          pandoc artifacts/gov_transfers.md -o artifacts/gov_transfers.typ
-          pandoc artifacts/gov_transfers_fuzziness.md -o artifacts/gov_transfers_fuzziness.typ
-          pandoc artifacts/all_comp.md -o artifacts/all_comp.typ
-          pandoc artifacts/gov_transfers_rd_density.md -o artifacts/gov_transfers_rd_density.typ
-          pandoc artifacts/gov_transfexxrs.md -o artifacts/gov_transfexxrs.typ
-          pandoc artifacts/quart_comp.md -o artifacts/quart_comp.typ
-          pandoc artifacts/half_bw.md -o artifacts/half_bw.typ
-          pandoc artifacts/quart_bw.md -o artifacts/quart_bw.typ
-          pandoc artifacts/paper_comp.md -o artifacts/paper_comp.typ
-          pandoc artifacts/full_comp.md -o artifacts/full_comp.typ
-          pandoc artifacts/half_comp.md -o artifacts/half_comp.typ
-          pandoc artifacts/quart_comp.md -o artifacts/quart_comp.typ
+          echo heyo
         '';
 
         installPhase = ''
