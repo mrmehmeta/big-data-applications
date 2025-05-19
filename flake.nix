@@ -48,6 +48,7 @@
           rPackages.lubridate
           rPackages.caret
           rPackages.zoo
+          rPackages.forecast
         ];
         shellHook = ''
           nu
