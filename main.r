@@ -29,6 +29,5 @@ Train_std <- training %>%
   mutate_all(scale, center = T, scale = T) %>%
   cbind(dates, .)
 
-
 wCPI_std <- scale(wCPI, center = T, scale = T)
 wIPI_std <- scale(wIPI, center = T, scale = T)
