@@ -30,8 +30,5 @@ Train_std <- training %>%
   cbind(dates, .)
 
 
-wCPI_std <- wCPI %>%
-  mutate_all(scale, center = T, scale = T)
-
-wIPI_std <- wIPI %>%
-  mutate_all(scale, center = T, scale = T)
+wCPI_std <- scale(wCPI, center = T, scale = T)
+wIPI_std <- scale(wIPI, center = T, scale = T)
