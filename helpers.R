@@ -1,5 +1,7 @@
 library(tidyverse)
 library(zoo)
+library(lme4)
+library(forecast)
 
 autoregress <- function(var, p){
   n <- length(var)

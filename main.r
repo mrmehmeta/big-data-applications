@@ -1,7 +1,4 @@
-library(tidyverse)
-library(zoo)
-library(lme4)
-library(forecast)
+source("helpers.R")
 
 data <- read_csv("data_BDA_2025.csv")
 
@@ -36,18 +33,15 @@ train_std <- training %>%
   cbind(dates, .)
 
 #AR1 Model
-ipi_y <- ipi[-c(1, 2)]
-ipi_x_1 <- ipi[-c(1, 524)]
+ar_1 <- autoregress(ipi, 1)
 
-ar_1 <- lm(ipi_y ~ ipi_x_1)
-BIC(ar_1)
+BIC(ar_1$lm)
 
 
 #AR(p) Model
-ipi_x_2 <- ipi[-c(523, 524)]
 ar_2 <- lm(ipi_y ~ ipi_x_1 + ipi_x_2)
 
-BIC(ar_2)
+BIC(ar_2$lm)
 
 #Random Walk 
 
