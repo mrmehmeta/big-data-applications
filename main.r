@@ -6,13 +6,16 @@ training <- data[cbind(0:(2 * nrow(data) / 3)), ]
 
 test <- tail(data, n = (nrow(data) / 3))
 
-print(dim(data))
-print(dim(training))
-print(dim(test))
-
-wCPI <- training$PCEPI
-wIPI <- training$INDPRO
+# Extract variables to later use for forecasting
+cpi <- training$PCEPI
+ipi <- training$INDPRO
 dates <- training$sasdate
+cpi_std <- scale(wCPI, center = T, scale = T)
+ipi_std <- scale(wIPI, center = T, scale = T)
+cpi_mean <- mean(wCPI)
+cpi_stdev <- sd(wCPI)
+ipi_mean <- mean(wIPI)
+ipi_stdev <- sd(wIPI)
 
 train_mean <- training %>%
   select(!sasdate) %>%
@@ -24,16 +27,7 @@ train_stdev <- training %>%
   mutate_all(sd) %>%
   t()
 
-Train_std <- training %>%
+train_std <- training %>%
   select(!sasdate) %>%
   mutate_all(scale, center = T, scale = T) %>%
   cbind(dates, .)
-
-wCPI_std <- scale(wCPI, center = T, scale = T)
-wIPI_std <- scale(wIPI, center = T, scale = T)
-
-wCPI_mean <- mean(wCPI)
-wCPI_stdev <- sd(wCPI)
-wIPI_mean <- mean(wIPI)
-wIPI_stdev <- sd(wIPI)
-
