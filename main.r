@@ -1,4 +1,5 @@
 library(tidyverse)
+library(zoo)
 
 data <- read_csv("data_BDA_2025.csv")
 
@@ -10,12 +11,12 @@ test <- tail(data, n = (nrow(data) / 3))
 cpi <- training$PCEPI
 ipi <- training$INDPRO
 dates <- training$sasdate
-cpi_std <- scale(wCPI, center = T, scale = T)
-ipi_std <- scale(wIPI, center = T, scale = T)
-cpi_mean <- mean(wCPI)
-cpi_stdev <- sd(wCPI)
-ipi_mean <- mean(wIPI)
-ipi_stdev <- sd(wIPI)
+cpi_std <- scale(cpi, center = T, scale = T)
+ipi_std <- scale(ipi, center = T, scale = T)
+cpi_mean <- mean(cpi)
+cpi_stdev <- sd(cpi)
+ipi_mean <- mean(ipi)
+ipi_stdev <- sd(ipi)
 
 train_mean <- training %>%
   select(!sasdate) %>%
@@ -31,3 +32,14 @@ train_std <- training %>%
   select(!sasdate) %>%
   mutate_all(scale, center = T, scale = T) %>%
   cbind(dates, .)
+
+#AR1 Model
+
+
+
+
+
+#AR(p) Model
+#Random Walk 
+#Multivariate OLS model
+#PCA (factor model)
