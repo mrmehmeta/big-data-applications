@@ -45,10 +45,16 @@ BIC(ar_1)
 
 # Random Walk
 
-random_walk <- function(end_point, steps) {
-  return(rw30() + end_point)
-}
+# random_walk <- function(end_point, steps) {
+#   return(rw30() + end_point)
+# }
 
+rw_diff <- train_std |>
+  select(dates) |>
+  diff() |>
+  cbind(dates, .)
+model_wn <- arima(rw_diff, order = c(0, 0, 0))
+model_inc <- model_wn$interc
 
 # AR(2) Model
 # ar_2 <- autoregress_lm(train_std$INDPRO, 2)
