@@ -31,3 +31,9 @@ Train_std <- training %>%
 
 wCPI_std <- scale(wCPI, center = T, scale = T)
 wIPI_std <- scale(wIPI, center = T, scale = T)
+
+wCPI_mean <- mean(wCPI)
+wCPI_stdev <- sd(wCPI)
+wIPI_mean <- mean(wIPI)
+wIPI_stdev <- sd(wIPI)
+
