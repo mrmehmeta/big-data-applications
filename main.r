@@ -1,10 +1,8 @@
 library(tidyverse)
-library(caret)
 
-data <- read_csv("current.csv")
-training_size <- 2 * nrow(data) / 3
+data <- read_csv("data_BDA_2025.csv")
 
-training <- createDataPartition(data, p = 0.6, list = FALSE)
+training <- data[cbind(0:(2 * nrow(data) / 3)), ]
 
 print(dim(data))
 print(dim(training))
