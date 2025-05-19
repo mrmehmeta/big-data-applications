@@ -47,6 +47,7 @@
           rPackages.tidyverse
           rPackages.lubridate
           rPackages.caret
+          rPackages.zoo
         ];
         shellHook = ''
           nu
