@@ -26,6 +26,12 @@ train_stdev <- training %>%
 
 Train_std <- training %>%
   select(!sasdate) %>%
-  mutate_all( scale, center = T, scale = T) %>%
+  mutate_all(scale, center = T, scale = T) %>%
   cbind(dates, .)
 
+
+wCPI_std <- wCPI %>%
+  mutate_all(scale, center = T, scale = T)
+
+wIPI_std <- wIPI %>%
+  mutate_all(scale, center = T, scale = T)
