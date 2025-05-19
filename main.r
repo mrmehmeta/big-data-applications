@@ -38,10 +38,13 @@ ar_1 <- autoregress(ipi, 1)
 BIC(ar_1$lm)
 
 
-#AR(p) Model
-ar_2 <- lm(ipi_y ~ ipi_x_1 + ipi_x_2)
+#AR(2) Model
+ar_2 <- autoregress(ipi, 2)
 
 BIC(ar_2$lm)
+
+#AR(p) model
+bic_arp <- bic_comp(ipi)
 
 #Random Walk 
 
