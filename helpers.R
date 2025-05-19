@@ -2,6 +2,7 @@ library(tidyverse)
 library(zoo)
 library(lme4)
 library(forecast)
+library(glmnet)
 
 autoregress <- function(var, p){
   n <- length(var)
@@ -13,25 +14,29 @@ autoregress <- function(var, p){
     x[,i] <- var[(p+1-i):(n-i)]
   }
   
-  lm <- lm(y ~ x)
-  
-  return <- list(
+  list <- list(
     y = y,
-    x = x,
-    lm = lm
+    x = x
   )
+  
+  return(list)
+  
+}
+
+autoregress_lm <- function(var, p){
+  return <- lm(autoregress(var, p)$y ~ autoregress(var, p)$x)
   
   return(return)
   
 }
 
-bic_comp <- function(var){
-  n <- length (var)
+bic_ar <- function(var){
+  n <- length(var)
   bic_all <- matrix(, nrow = (n-1), ncol = 2)
   bic_all[, 1] <- 1:(n-1)
   
   for(i in 1:(n-1)){
-    bic_all[i, 2] <- BIC(autoregress(var, i)$lm)
+    bic_all[i, 2] <- BIC(autoregress_lm(var, i))
   }
   
   bic_all <- as.data.frame(bic_all)
@@ -39,11 +44,36 @@ bic_comp <- function(var){
   graph <- bic_all |> ggplot(aes(x = V1, y = V2)) +
      geom_point()
   
-  return <- list(
+  list <- list(
     bic_all = bic_all,
     graph = graph
   )
   
-  return(return)
+  return(list)
   
+}
+
+multivar <- function(y, vars, opt, lambda){
+  n <- length(vars)
+  y <- y[-c(1:p)]
+  x <- matrix(, nrow = (n-1), ncol = (n+1))
+  
+  x[,1] <- y[1:(n-1)]
+  
+  for(i in 1:n){
+    x[,(i+1)] <- vars[[i]][1:(n-1)]
+  }
+  
+  if(opt == "lm"){
+    result <- lm(y ~ x)
+  }
+  else if(opt == "lasso"){
+    result <- glmnet(x, y, alpha = 1, lambda = lambda)
+  }
+  else if(opt == "ridge"){
+    result <- glmnet(x, y, alpha = 0, lambda = lambda)
+  }
+  
+  return(result)
+
 }

@@ -33,18 +33,18 @@ train_std <- training %>%
   cbind(dates, .)
 
 #AR1 Model
-ar_1 <- autoregress(ipi, 1)
+ar_1 <- autoregress_lm(train_std$INDPRO, 1)
 
-BIC(ar_1$lm)
+BIC(ar_1)
 
 
 #AR(2) Model
-ar_2 <- autoregress(ipi, 2)
-
-BIC(ar_2$lm)
+# ar_2 <- autoregress_lm(train_std$INDPRO, 2)
+# 
+# BIC(ar_2)
 
 #AR(p) model
-bic_arp <- bic_comp(ipi)
+bic_arp <- bic_ar(ipi)
 
 #Random Walk 
 
