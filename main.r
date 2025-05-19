@@ -49,12 +49,11 @@ BIC(ar_1)
 #   return(rw30() + end_point)
 # }
 
-rw_diff <- train_std |>
-  select(dates) |>
-  diff() |>
-  cbind(dates, .)
+rw_diff <- cpi |>
+  diff()
 model_wn <- arima(rw_diff, order = c(0, 0, 0))
-model_inc <- model_wn$interc
+model_inc <- model_wn$coef
+print(model_inc)
 
 # AR(2) Model
 # ar_2 <- autoregress_lm(train_std$INDPRO, 2)
