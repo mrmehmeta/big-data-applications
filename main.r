@@ -61,7 +61,7 @@ lm(random_ipi ~ 1)
 # Random Walk Prem 
 
 # rw_diff <- cpi_std |> 
-diff()
+# diff()
 
 model_wn <- arima(cpi_std, order = c(0, 1, 0))
 model_inc <- model_wn$coef
