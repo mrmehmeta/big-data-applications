@@ -62,5 +62,10 @@ random_ipi <- random_ipi[2:length(random_ipi),]
 mean(random_ipi)
 
 #Multivariate OLS, Ridge, Lasso
+##OLS
+
+##Ridge
+
+##Lasso
 
 #PCA (factor model)
