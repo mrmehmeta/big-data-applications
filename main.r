@@ -2,6 +2,7 @@ source("helpers.R")
 library(tidyverse)
 library(zoo)
 library(forecast)
+library(fable)
 
 data <- read_csv("data_BDA_2025.csv")
 
@@ -49,11 +50,16 @@ BIC(ar_1)
 #   return(rw30() + end_point)
 # }
 
-rw_diff <- cpi |>
-  diff()
-model_wn <- arima(rw_diff, order = c(0, 0, 0))
+# rw_diff <- cpi_std |>
+#   diff()
+model_wn <- arima(cpi_std, order = c(0, 1, 0))
 model_inc <- model_wn$coef
 print(model_inc)
+forecast(model_wn) |>
+  autoplot()
+
+model_fb <- as_tibble(model(cpi_std, arima = ARIMA(value ~ pdq(0, 1, 0) + PDQ(0, 0, 0))), index = date)
+glimpse(model_fb)
 
 # AR(2) Model
 # ar_2 <- autoregress_lm(train_std$INDPRO, 2)
