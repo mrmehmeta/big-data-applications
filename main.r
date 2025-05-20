@@ -44,7 +44,9 @@ BIC(ar_1)
 # BIC(ar_2)
 
 #AR(p) model
-bic_arp <- bic_ar(ipi)
+bic_arp <- bic_ar(train_std$INDPRO)
+ar_10 <- autoregress_lm(train_std$INDPRO, 10)
+BIC(ar_10)
 
 #Random Walk 
 #Mehmet's delusional approach
