@@ -41,7 +41,7 @@ bic_ar <- function(var, min = 1, max = (length(var)-1)){
   
   bic_all <- as.data.frame(bic_all)
   
-  graph <- bic_all |> ggplot(aes(x = V1, y = V2)) +
+  graph <- bic_all %>% ggplot(aes(x = V1, y = V2)) +
      geom_point()
   
   list <- list(
