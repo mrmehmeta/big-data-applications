@@ -77,3 +77,26 @@ multivar <- function(y, vars, opt, lambda){
   return(result)
 
 }
+
+bic_mvar <- function(y, vars, opt){
+  lambdas <- seq(0.00001, 0.1, by = 0.00001)
+  n <- length(lambdas)
+  bic_all <- matrix(, nrows = n, ncols = 2)
+  bic_all[, 1] <- n
+  
+  for(i in min:max){
+    bic_all[i, 2] <- BIC(multivar(y, vars, opt, i))
+  }
+  
+  bic_all <- as.data.frame(bic_all)
+  
+  graph <- bic_all %>% ggplot(aes(x = V1, y = V2)) +
+    geom_point()
+  
+  list <- list(
+    bic_all = bic_all,
+    graph = graph
+  )
+  
+  return(list)
+}
