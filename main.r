@@ -47,10 +47,12 @@ BIC(ar_1)
 ipi_x_2 <- ipi[-c(523, 524)]
 ar_2 <- lm(ipi_y ~ ipi_x_1 + ipi_x_2)
 
+
 BIC(ar_2)
 
 #Random Walk 
 
 #Multivariate OLS, Ridge, Lasso
+
 
 #PCA (factor model)
