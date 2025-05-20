@@ -30,12 +30,12 @@ autoregress_lm <- function(var, p){
   
 }
 
-bic_ar <- function(var){
+bic_ar <- function(var, min = 1, max = (length(var)-1)){
   n <- length(var)
-  bic_all <- matrix(, nrow = (n-1), ncol = 2)
-  bic_all[, 1] <- 1:(n-1)
+  bic_all <- matrix(, nrow = max, ncol = 2)
+  bic_all[, 1] <- min:max
   
-  for(i in 1:(n-1)){
+  for(i in min:max){
     bic_all[i, 2] <- BIC(autoregress_lm(var, i))
   }
   

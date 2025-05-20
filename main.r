@@ -47,6 +47,17 @@ BIC(ar_1)
 bic_arp <- bic_ar(ipi)
 
 #Random Walk 
+#Mehmet's delusional approach
+#Y_t=\beta_0+Y_{t-1}+\epsilon <=> Y_t-Y_{t-1}=\beta_0+\epsilon
+random_ipi <- train_std$INDPRO
+
+for(i in length(random_ipi):2){
+  random_ipi[i] <- random_ipi[i] - random_ipi[i-1]
+}
+
+random_ipi <- random_ipi[2:length(random_ipi),]
+
+mean(random_ipi)
 
 #Multivariate OLS, Ridge, Lasso
 
