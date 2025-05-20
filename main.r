@@ -1,7 +1,4 @@
 source("helpers.R")
-library(tidyverse)
-library(zoo)
-library(forecast)
 
 data <- read_csv("data_BDA_2025.csv")
 
@@ -82,7 +79,7 @@ for (i in length(random_ipi):2) {
 random_ipi <- random_ipi[2:length(random_ipi), ]
 
 mean(random_ipi)
-
+lm(random_ipi ~ 1)
 
 #Multivariate OLS, Ridge, Lasso
 ##OLS
