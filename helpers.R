@@ -53,13 +53,13 @@ bic_ar <- function(var, min = 1, max = (length(var)-1)){
   
 }
 
+
 multivar <- function(y, x, opt, lambda){
   n <- nrow(x)
   y <- y[-1]
   x <- as.matrix(x)
   x <- x[1:(n - 1)]
     
-  
   if(opt == "lm"){
     result <- lm(y ~ x)
   }
@@ -95,4 +95,10 @@ bic_mvar <- function(y, x, opt){
   )
   
   return(list)
+}
+
+forecast_all <- function(model, training, test){
+  data <- cbind(training, test)
+  yt1 <- length(training)
+  
 }
