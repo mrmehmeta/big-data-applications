@@ -75,11 +75,12 @@ multivar <- function(y, x, opt, lambda){
 }
 
 
-bic_glm(fit){
+bic_glm <- function(fit){
   tLL <- fit$nulldev - deviance(fit)
   k <- fit$df
   n <- fit$nobs
   BIC<-log(n)*k - tLL
+  return(BIC)
 }
 
 bic_mvar <- function(y, x, opt){
