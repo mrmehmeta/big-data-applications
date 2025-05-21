@@ -33,19 +33,26 @@ train_std <- training %>%
   cbind(dates, .)
 
 # AR1 Model
-ar_1 <- autoregress_lm(train_std$INDPRO, 1)
-BIC(ar_1)
+ipi_ar1 <- autoregress_lm(train_std$INDPRO, 1)
+BIC(ipi_ar1)
+
+cpi_ar1 <- autoregress_lm(train_std$PCEPI, 1)
+BIC(cpi_ar1)
 
 # AR(2) Model
-ar_2 <- autoregress_lm(train_std$INDPRO, 2)
-BIC(ar_2)
+ipi_ar2 <- autoregress_lm(train_std$INDPRO, 2)
+BIC(ipi_ar2)
 
+cpi_ar2 <- autoregress_lm(train_std$PCEPI, 2)
+BIC(cpi_ar2)
 # AR(p) model 
-# WIP
-bic_arp <- bic_ar(train_std$INDPRO)
-ar_10 <- autoregress_lm(train_std$INDPRO, 10)
-BIC(ar_10)
+ipi_bic_arp <- bic_ar(train_std$INDPRO) #1 it optimal
+ipi_arp <- autoregress_lm(train_std$INDPRO, 1)
+BIC(ipi_arp)
 
+cpi_bic_arp <- bic_ar(train_std$PCEPI, max = 10) #5 is optimal
+cpi_arp <- autoregress_lm(train_std$INDPRO, 1)
+BIC(ipi_arp)
 # Random Walk 
 # Y_t=\beta_0+Y_{t-1}+\epsilon <=> Y_t-Y_{t-1}=\beta_0+\epsilon
 random_ipi <- ipi_std
@@ -75,6 +82,7 @@ ipi_std %>%
 
 ipi_ridge <- ipi_std %>%
   multivar(opt = "ridge", lambda = 0.1, x = trainstd_nodate )
+
 modelsummary(ipi_ridge)
 ##Lasso
 ipi_std %>%
