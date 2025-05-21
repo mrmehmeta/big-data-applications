@@ -78,7 +78,7 @@ bic_glm <- function(fit) {
   tLL <- fit$nulldev - deviance(fit)
   k <- fit$df
   n <- fit$nobs
-  bic <- log(n) * k - tLL
+  BIC <- log(n) * k - tLL
   return(BIC)
 }
 
