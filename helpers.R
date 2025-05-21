@@ -78,10 +78,10 @@ bic_mvar <- function(y, x, opt){
   lambdas <- seq(0.00001, 0.1, by = 0.00001)
   n <- length(lambdas)
   bic_all <- matrix(, nrow = n, ncol = 2)
-  bic_all[, 1] <- n
+  bic_all[, 1] <- lambdas
   
-  for(i in min:max){
-    bic_all[i, 2] <- BIC(multivar(y, x, opt, i))
+  for(i in 1:n){
+    bic_all[i, 2] <- BIC(multivar(y, x, opt, lambdas[i]))
   }
   
   bic_all <- as.data.frame(bic_all)
@@ -99,6 +99,6 @@ bic_mvar <- function(y, x, opt){
 
 forecast_all <- function(model, training, test){
   data <- cbind(training, test)
-  yt1 <- length(training)
+  n <- nrow(training)
   
 }
