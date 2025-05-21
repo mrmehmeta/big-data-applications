@@ -53,16 +53,12 @@ bic_ar <- function(var, min = 1, max = (length(var)-1)){
   
 }
 
-multivar <- function(y, vars, opt, lambda){
-  n <- length(vars)
-  y <- y[-c(1:p)]
-  x <- matrix(, nrow = (n-1), ncol = (n+1))
-  
-  x[,1] <- y[1:(n-1)]
-  
-  for(i in 1:n){
-    x[,(i+1)] <- vars[[i]][1:(n-1)]
-  }
+multivar <- function(y, x, opt, lambda){
+  n <- nrow(x)
+  y <- y[-1]
+  x <- as.matrix(x)
+  x <- x[1:(n - 1)]
+    
   
   if(opt == "lm"){
     result <- lm(y ~ x)
@@ -78,14 +74,14 @@ multivar <- function(y, vars, opt, lambda){
 
 }
 
-bic_mvar <- function(y, vars, opt){
+bic_mvar <- function(y, x, opt){
   lambdas <- seq(0.00001, 0.1, by = 0.00001)
   n <- length(lambdas)
   bic_all <- matrix(, nrows = n, ncols = 2)
   bic_all[, 1] <- n
   
   for(i in min:max){
-    bic_all[i, 2] <- BIC(multivar(y, vars, opt, i))
+    bic_all[i, 2] <- BIC(multivar(y, x, opt, i))
   }
   
   bic_all <- as.data.frame(bic_all)
