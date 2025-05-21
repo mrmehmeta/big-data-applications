@@ -86,7 +86,7 @@ ipi_ridge <- ipi_std %>%
 modelsummary(ipi_ridge)
 ##Lasso
 ipi_std %>%
-  bic_mvar(opt = "ridge", x = trainstd_nodate)
+  bic_mvar(opt = "lasso", x = trainstd_nodate)
 
 trainstd_nodate%>%
   bic_mvar()
