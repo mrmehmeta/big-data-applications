@@ -5,13 +5,29 @@ library(forecast)
 library(glmnet)
 library(modelsummary)
 
-bic <- function(model) {
+bic <- function(model, p = (model$rank - 1)) {
   data <- (model$residuals + model$fitted.values)
   ssr <- sum((model$residuals)^2)
   t <- length(data)
-  p <- (model$rank - 1)
   return(log((ssr / t)) + ((p + 1) * (log(t) / t)))
 }
+
+bic_ridge <- function(model, p) {
+  data <- (model$residuals + model$fitted.values)
+  ssr <- sum((model$residuals)^2)
+  sigma <- (var(model$residuals))^2
+  n <- length(data)
+  p <- (model$rank - 
+  return(ssr + ((p + 1) * (log(n) / n)))
+}
+
+# bic_lasso <- function(model) {
+#   data <- (model$residuals + model$fitted.values)
+#   ssr <- sum((model$residuals)^2)
+#   n <- length(data)
+#   p <- (model$rank - 1)
+#   return(log((ssr / t)) + ((p + 1) * (log(t) / t)))
+# }
 
 autoregress <- function(var, p) {
   n <- length(var)
