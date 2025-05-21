@@ -49,7 +49,10 @@
           rPackages.caret
           rPackages.zoo
           rPackages.forecast
+          rPackages.lme4
           rPackages.fable
+          rPackages.glmnet
+          rPackages.modelsummary
         ];
         shellHook = ''
           nu
