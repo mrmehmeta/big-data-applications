@@ -45,9 +45,9 @@ bic_arp <- bic_ar(train_std$INDPRO)
 ar_10 <- autoregress_lm(train_std$INDPRO, 10)
 BIC(ar_10)
 
-# Random Walk Mehmet's delusional approach
+# Random Walk ll
 # Y_t=\beta_0+Y_{t-1}+\epsilon <=> Y_t-Y_{t-1}=\beta_0+\epsilon
-random_ipi <- train_std$INDPRO
+random_ipi <- ipi_std
 
 for (i in length(random_ipi):2) {
   random_ipi[i] <- random_ipi[i] - random_ipi[i - 1]
@@ -55,22 +55,8 @@ for (i in length(random_ipi):2) {
 
 random_ipi <- random_ipi[2:length(random_ipi), ]
 
-mean(random_ipi)
+b0_ipi <- mean(random_ipi)
 lm(random_ipi ~ 1)
-
-# Random Walk Prem 
-
-# rw_diff <- cpi_std |> 
-# diff()
-
-model_wn <- arima(cpi_std, order = c(0, 1, 0))
-model_inc <- model_wn$coef
-print(model_inc)
-forecast(model_wn) |>
-  autoplot()
-
-model_fb <- as_tibble(model(cpi_std, arima = ARIMA(value ~ pdq(0, 1, 0) + PDQ(0, 0, 0))), index = date)
-glimpse(model_fb)
 
 #Multivariate OLS, Ridge, Lasso
 ##OLS
