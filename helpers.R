@@ -74,7 +74,6 @@ multivar <- function(y, x, opt, lambda){
 
 }
 
-
 bic_glm <- function(fit){
   tLL <- fit$nulldev - deviance(fit)
   k <- fit$df
@@ -104,10 +103,23 @@ bic_mvar <- function(y, x, opt){
   )
   
   return(list)
+  
 }
 
 forecast_all <- function(model, training, test){
   data <- cbind(training, test)
-  n <- nrow(training)
+  ntr <- nrow(training)
+  ntst <- nrow(test)
+  coefs <- as.vector(model$coefficients)
+  int <- coefs[1]
+  coefs <- coefs[-1]
+  ncoefs <- length(coefs)
+  result <- c()
+  
+  for(i in 1:ntst){
+    data[ntr-1+i,]
+  }
+  
+  return(result)
   
 }
