@@ -40,13 +40,13 @@ BIC(ar_1)
 ar_2 <- autoregress_lm(train_std$INDPRO, 2)
 BIC(ar_2)
 
-# AR(p) model 
+# AR(p) model
 # WIP
 bic_arp <- bic_ar(train_std$INDPRO)
 ar_10 <- autoregress_lm(train_std$INDPRO, 10)
 BIC(ar_10)
 
-# Random Walk 
+# Random Walk
 # Y_t=\beta_0+Y_{t-1}+\epsilon <=> Y_t-Y_{t-1}=\beta_0+\epsilon
 random_ipi <- ipi_std
 
@@ -59,28 +59,28 @@ random_ipi <- random_ipi[2:length(random_ipi), ]
 b0_ipi <- mean(random_ipi)
 lm(random_ipi ~ 1)
 
-#Multivariate OLS, Ridge, Lasso
-trainstd_nodate <- train_std %>% 
+# Multivariate OLS, Ridge, Lasso
+trainstd_nodate <- train_std %>%
   select(!dates)
 
-##OLS
+## OLS
 ipi_OLS <- ipi_std %>%
-  multivar(opt = "lm", x = trainstd_nodate ) 
+  multivar(opt = "lm", x = trainstd_nodate)
 
 modelsummary(ipi_OLS)
 
-##Ridge
+## Ridge
 ipi_std %>%
   bic_mvar(opt = "ridge", x = trainstd_nodate)
 
 ipi_ridge <- ipi_std %>%
-  multivar(opt = "ridge", lambda = 0.1, x = trainstd_nodate )
+  multivar(opt = "ridge", lambda = 0.1, x = trainstd_nodate)
 modelsummary(ipi_ridge)
-##Lasso
+## Lasso
 ipi_std %>%
   bic_mvar(opt = "ridge", x = trainstd_nodate)
 
-trainstd_nodate%>%
+trainstd_nodate %>%
   bic_mvar()
 
 train_std %>%
