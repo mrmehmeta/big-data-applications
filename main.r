@@ -40,7 +40,8 @@ BIC(ar_1)
 ar_2 <- autoregress_lm(train_std$INDPRO, 2)
 BIC(ar_2)
 
-# AR(p) model
+# AR(p) model 
+# WIP
 bic_arp <- bic_ar(train_std$INDPRO)
 ar_10 <- autoregress_lm(train_std$INDPRO, 10)
 BIC(ar_10)
@@ -72,9 +73,13 @@ modelsummary(ipi_OLS)
 ipi_std %>%
   bic_mvar(opt = "ridge", x = trainstd_nodate)
 
-trainstd_nodate %>%
-  multivar(opt = "ridge", lambda =  )
+ipi_ridge <- ipi_std %>%
+  multivar(opt = "ridge", lambda = 0.1, x = trainstd_nodate )
+modelsummary(ipi_ridge)
 ##Lasso
+ipi_std %>%
+  bic_mvar(opt = "ridge", x = trainstd_nodate)
+
 trainstd_nodate%>%
   bic_mvar()
 

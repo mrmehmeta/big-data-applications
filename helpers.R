@@ -84,7 +84,7 @@ bic_glm <- function(fit){
 }
 
 bic_mvar <- function(y, x, opt){
-  lambdas <- seq(0.00001, 0.1, by = 0.00001)
+  lambdas <- seq(0.001, 0.1, by = 0.001)
   n <- length(lambdas)
   bic_all <- matrix(, nrow = n, ncol = 2)
   bic_all[, 1] <- lambdas
