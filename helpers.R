@@ -3,6 +3,7 @@ library(zoo)
 library(lme4)
 library(forecast)
 library(glmnet)
+library(modelsummary)
 
 autoregress <- function(var, p){
   n <- length(var)
@@ -53,12 +54,11 @@ bic_ar <- function(var, min = 1, max = (length(var)-1)){
   
 }
 
-
 multivar <- function(y, x, opt, lambda){
   n <- nrow(x)
   y <- y[-1]
   x <- as.matrix(x)
-  x <- x[1:(n - 1)]
+  x <- x[1:(n - 1),]
     
   if(opt == "lm"){
     result <- lm(y ~ x)
@@ -77,7 +77,7 @@ multivar <- function(y, x, opt, lambda){
 bic_mvar <- function(y, x, opt){
   lambdas <- seq(0.00001, 0.1, by = 0.00001)
   n <- length(lambdas)
-  bic_all <- matrix(, nrows = n, ncols = 2)
+  bic_all <- matrix(, nrow = n, ncol = 2)
   bic_all[, 1] <- n
   
   for(i in min:max){

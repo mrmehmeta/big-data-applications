@@ -59,13 +59,25 @@ b0_ipi <- mean(random_ipi)
 lm(random_ipi ~ 1)
 
 #Multivariate OLS, Ridge, Lasso
+trainstd_nodate <- train_std %>% 
+  select(!dates)
+
 ##OLS
+ipi_OLS <- ipi_std %>%
+  multivar(opt = "lm", x = trainstd_nodate ) 
+
+modelsummary(ipi_OLS)
 
 ##Ridge
+ipi_std %>%
+  bic_mvar(opt = "ridge", x = trainstd_nodate)
 
+trainstd_nodate %>%
+  multivar(opt = "ridge", lambda =  )
 ##Lasso
+trainstd_nodate%>%
+  bic_mvar()
 
-
-# PCA (factor model)
-# Multivariate OLS model
+train_std %>%
+  multivar(opt = "lasso", lambda = )
 # PCA (factor model)
