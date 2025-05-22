@@ -80,6 +80,8 @@ modelsummary(ipi_OLS)
 ipi_std %>%
   bic_mvar(opt = "ridge", x = trainstd_nodate)
 
+testglm <- glmnet(trainstd_nodate, ipi_std, alpha = 1, lambda = 5)
+
 ipi_ridge <- ipi_std %>%
   multivar(opt = "ridge", lambda = 0.1, x = trainstd_nodate)
 

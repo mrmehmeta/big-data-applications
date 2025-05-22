@@ -4,6 +4,7 @@ library(lme4)
 library(forecast)
 library(glmnet)
 library(modelsummary)
+library(lmridge)
 
 bic <- function(model, p = (model$rank - 1)) {
   data <- (model$residuals + model$fitted.values)
@@ -12,12 +13,13 @@ bic <- function(model, p = (model$rank - 1)) {
   return(log((ssr / t)) + ((p + 1) * (log(t) / t)))
 }
 
-bic_ridge <- function(model, lambda) {
-  data <- (model$residuals + model$fitted.values)
-  ssr <- sum((model$residuals)^2)
-  sigma_squared <- (var(model$residuals))^2
-  n <- length(data)
-  d_lambda <- t(data %*% solve(data %*% t(data) + lambda %*% solve(data)) %*% solve(data))
+bic_ridge <- function(model, lambda){
+  x <- model$xs
+  residuals <- residuals(model)
+  ssr <- sum(residuals^2)
+  sigma_squared <- var(residuals)
+  n <- nrow(x)
+  d_lambda <- t(x %*% solve(x %*% t(x) + lambda %*% solve(x)) %*% solve(x))
   return(ssr + (log(n) / n) * d_lambda * sigma_squared)
 }
 
@@ -80,23 +82,28 @@ multivar <- function(y, x, opt, lambda) {
   x <- x[1:(n - 1), ]
 
   if (opt == "lm") {
-    result <- lm(y ~ x)
+    model <- lm(y ~ x)
   } else if (opt == "lasso") {
-    result <- glmnet(x, y, alpha = 1, lambda = lambda)
+    model <- glmnet(x, y, alpha = 1, lambda = lambda)
   } else if (opt == "ridge") {
-    result <- glmnet(x, y, alpha = 0, lambda = lambda)
+    model <- lmridge(y ~ x, K = lambda, scaling = "non")
   }
-
-  return(result)
+  
+  # list <- list(
+  #   model = model,
+  #   x = x
+  # )
+  
+  return(model)
 }
 
-bic_glm <- function(fit) {
-  tLL <- fit$nulldev - deviance(fit)
-  k <- fit$df
-  n <- fit$nobs
-  BIC <- log(n) * k - tLL
-  return(BIC)
-}
+# bic_glm <- function(fit) {
+#   tLL <- fit$nulldev - deviance(fit)
+#   k <- fit$df
+#   n <- fit$nobs
+#   BIC <- log(n) * k - tLL
+#   return(BIC)
+# }
 
 bic_mvar <- function(y, x, opt) {
   lambdas <- seq(0.001, 0.1, by = 0.001)
@@ -105,7 +112,7 @@ bic_mvar <- function(y, x, opt) {
   bic_all[, 1] <- lambdas
 
   for (i in 1:n) {
-    bic_all[i, 2] <- bic_glm(multivar(y, x, opt, lambdas[i]))
+    bic_all[i, 2] <- bic_ridge(multivar(y, x, opt, lambdas[i]), lambdas[i])
   }
 
   bic_all <- as.data.frame(bic_all)
