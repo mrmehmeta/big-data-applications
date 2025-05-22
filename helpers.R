@@ -12,13 +12,14 @@ bic <- function(model, p = (model$rank - 1)) {
   return(log((ssr / t)) + ((p + 1) * (log(t) / t)))
 }
 
-bic_ridge <- function(model, p) {
+bic_ridge <- function(model, lambda) {
   data <- (model$residuals + model$fitted.values)
   ssr <- sum((model$residuals)^2)
-  sigma <- (var(model$residuals))^2
+  sigma_squared <- (var(model$residuals))^2
   n <- length(data)
-  p <- (model$rank - 
-  return(ssr + ((p + 1) * (log(n) / n)))
+  p <- (model$rank - 1)
+  d_lambda <- t(data %*% solve(data %*% t(data) + lambda %*% solve(data)) %*% solve(data))
+  return(ssr + (log(n) / n) * d_lambda * sigma_squared)
 }
 
 # bic_lasso <- function(model) {
