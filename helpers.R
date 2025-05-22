@@ -29,8 +29,8 @@ bic_ridge <- function(model, x, lambda){
   ssr <- sum(residuals^2)
   sigma_squared <- var(residuals)
   n <- nrow(x)
-  d_lambda <- trace(x %*% solve((t(x) %*% x) + (lambda %*% diag(n))) %*% t(x))
-  return(ssr + (log(n) / n) * d_lambda * sigma_squared)
+  d_lambda <- trace(x %*% solve(t(x) %*% x + lambda * diag(ncol(x))) %*% t(x))
+  return((ssr + log(n) / n) * d_lambda * sigma_squared)
 }
 
 # bic_lasso <- function(model) {
