@@ -6,7 +6,7 @@ library(glmnet)
 library(modelsummary)
 library(lmridge)
 
-bic <- function(model, lambda = NULL) {
+bic <- function(model, lambda = NULL, data = NULL) {
   bic_ols <- function(model) {
     p <- (model$rank - 1)
     data <- (model$residuals + model$fitted.values)
@@ -15,11 +15,14 @@ bic <- function(model, lambda = NULL) {
     return(log((ssr / t)) + ((p + 1) * (log(t) / t)))
   }
 
-  bic_lasso <- function(model) {
-    p <- (model$rank - 1)
-    data <- as.matrix((resid(model) + fitted(model)))
-    ssr <- sum((resid(model))^2)
+  bic_lasso <- function(model, data) {
+    p <- (model$df)
+    print(p)
+    dim(data)
     t <- nrow(data)
+    print(t)
+    ssr <- sum((data - predict(model, 1:126))^2)
+    print(ssr)
     return(log((ssr / t)) + ((p) * (log(t) / t)))
   }
 
@@ -44,16 +47,19 @@ bic <- function(model, lambda = NULL) {
     return(ssr_m + (log(n) * d_lambda * sigma_squared / n))
   }
   if (length(class(model)) > 1) {
-    model_class <- class(model)[-1]
+    model_class <- class(model)[2]
   } else {
     model_class <- class(model)
   }
   if (model_class == "lm") {
-    return(bic_lasso(model))
+    return(bic_ols(model))
   } else if (model_class == "lmridge") {
     return(bic_ridge(model, lambda))
   } else if (model_class == "glmnet") {
-    return(bic_ols(model))
+    return(bic_lasso(model, data))
+  } else {
+    stop("\n Error: unhandled model class:\n")
+    print(model_class)
   }
 }
 
@@ -126,12 +132,7 @@ multivar <- function(y, x, opt, lambda) {
     model <- lmridge(y ~ ., data = data, K = lambda, scaling = "non")
   }
 
-  list <- list(
-    model = model,
-    x = x
-  )
-
-  return(list)
+  return(model)
 }
 
 # bic_glm <- function(fit) {
@@ -149,7 +150,7 @@ bic_mvar <- function(y, x, opt) {
   bic_all[, 1] <- lambdas
 
   for (i in 1:n) {
-    bic_all[i, 2] <- bic(multivar(y, x, opt, lambdas[i])$model, lambdas[i])
+    bic_all[i, 2] <- bic(multivar(y, x, opt, lambdas[i]), lambdas[i], data = y)
   }
 
   bic_all <- as.data.frame(bic_all)
