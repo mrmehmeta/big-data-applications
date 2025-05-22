@@ -56,6 +56,13 @@ BIC(ar_2)
 
 
 #PCA (factor model)
-library(corrplot)
 library(FactoMineR)
 library(factoextra)
+
+ipi_pca <- prcomp(trainstd_nodate)
+summary(ipi_pca)
+
+fviz_eig(ipi_pca, addlabels = TRUE)
+
+plot(summary(ipi_pca)$importance[3,])
+
