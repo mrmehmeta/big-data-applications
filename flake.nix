@@ -53,6 +53,7 @@
           rPackages.fable
           rPackages.glmnet
           rPackages.modelsummary
+          rPackages.lmridge
         ];
         shellHook = ''
           nu
