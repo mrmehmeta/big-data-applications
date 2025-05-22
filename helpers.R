@@ -142,7 +142,7 @@ bic_mvar <- function(y, x, opt) {
   bic_all[, 1] <- lambdas
 
   for (i in 1:n) {
-    bic_all[i, 2] <- bic_ridge(multivar(y, x, opt, lambdas[i])$model, lambdas[i])
+    bic_all[i, 2] <- bic(multivar(y, x, opt, lambdas[i])$model, lambdas[i])
   }
 
   bic_all <- as.data.frame(bic_all)
