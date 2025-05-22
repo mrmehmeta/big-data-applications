@@ -13,18 +13,19 @@ bic <- function(model, p = (model$rank - 1)) {
   return(log((ssr / t)) + ((p + 1) * (log(t) / t)))
 }
 
-trace <- function(A){
-    n <- dim(A)[1]
-    tr <- 0
-    for (k in 1:n) {
-      l <- A[k,k]
-      tr <- tr + l
-    }
+trace <- function(A) {
+  n <- dim(A)[1]
+  tr <- 0
+  for (k in 1:n) {
+    l <- A[k, k]
+    tr <- tr + l
+  }
 
-    return(tr[[1]])
+  return(tr[[1]])
 }
 
-bic_ridge <- function(model, x, lambda){
+bic_ridge <- function(model, lambda) {
+  x <- model$xs
   residuals <- residuals(model)
   ssr_m <- mean(residuals^2)
   sigma_squared <- var(residuals)
@@ -74,7 +75,7 @@ bic_ar <- function(var, min = 1, max = (length(var) - 1)) {
 
   bic_all <- as.data.frame(bic_all)
 
-  graph <- bic_all %>% ggplot(aes(x = V1, y = V2)) +
+  graph <- bic_all |> ggplot(aes(x = V1, y = V2)) +
     geom_point()
 
   list <- list(
@@ -91,8 +92,8 @@ multivar <- function(y, x, opt, lambda) {
   x <- x[1:(n - 1), ]
   x <- as.matrix(x)
   data <- as.data.frame(cbind(y, x))
-  
-  
+
+
   if (opt == "lm") {
     model <- lm(y ~ x)
   } else if (opt == "lasso") {
@@ -100,12 +101,12 @@ multivar <- function(y, x, opt, lambda) {
   } else if (opt == "ridge") {
     model <- lmridge(y ~ ., data = data, K = lambda, Inter = F, scaling = "non")
   }
-  
+
   list <- list(
     model = model,
     x = x
   )
-  
+
   return(list)
 }
 
@@ -124,12 +125,12 @@ bic_mvar <- function(y, x, opt) {
   bic_all[, 1] <- lambdas
 
   for (i in 1:n) {
-    bic_all[i, 2] <- bic_ridge(multivar(y, x, opt, lambdas[i])$model, multivar(y, x, opt, lambdas[i])$x, lambdas[i])
+    bic_all[i, 2] <- bic_ridge(multivar(y, x, opt, lambdas[i])$model, lambdas[i])
   }
 
   bic_all <- as.data.frame(bic_all)
 
-  graph <- bic_all %>% ggplot(aes(x = V1, y = V2)) +
+  graph <- bic_all |> ggplot(aes(x = V1, y = V2)) +
     geom_point()
 
   list <- list(
