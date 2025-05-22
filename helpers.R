@@ -49,11 +49,11 @@ bic <- function(model, lambda = NULL) {
     model_class <- class(model)
   }
   if (model_class == "lm") {
-    bic_lasso(model)
+    return(bic_lasso(model))
   } else if (model_class == "lmridge") {
-    bic_ridge(model, lambda)
+    return(bic_ridge(model, lambda))
   } else if (model_class == "glmnet") {
-    bic_ols(model)
+    return(bic_ols(model))
   }
 }
 
