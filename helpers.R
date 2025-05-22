@@ -17,7 +17,6 @@ bic_ridge <- function(model, lambda) {
   ssr <- sum((model$residuals)^2)
   sigma_squared <- (var(model$residuals))^2
   n <- length(data)
-  p <- (model$rank - 1)
   d_lambda <- t(data %*% solve(data %*% t(data) + lambda %*% solve(data)) %*% solve(data))
   return(ssr + (log(n) / n) * d_lambda * sigma_squared)
 }
