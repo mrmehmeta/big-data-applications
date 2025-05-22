@@ -91,6 +91,13 @@ bic_mvar(ipi_std, opt = "lasso", x = trainstd_nodate)
 #   multivar(opt = "lasso", lambda = )
 
 #PCA (factor model)
-library(corrplot)
 library(FactoMineR)
 library(factoextra)
+
+ipi_pca <- prcomp(trainstd_nodate)
+summary(ipi_pca)
+
+fviz_eig(ipi_pca, addlabels = TRUE)
+
+plot(summary(ipi_pca)$importance[3,])
+
