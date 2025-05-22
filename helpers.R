@@ -17,7 +17,7 @@ bic <- function(model, lambda = NULL) {
 
   bic_lasso <- function(model) {
     p <- (model$rank - 1)
-    data <- (resid(model) + fitted(model))
+    data <- as.matrix((resid(model) + fitted(model)))
     ssr <- sum((resid(model))^2)
     t <- nrow(data)
     return(log((ssr / t)) + ((p) * (log(t) / t)))
@@ -43,13 +43,17 @@ bic <- function(model, lambda = NULL) {
     d_lambda <- trace(x %*% solve(t(x) %*% x + lambda * diag(ncol(x))) %*% t(x))
     return(ssr_m + (log(n) * d_lambda * sigma_squared / n))
   }
-  print(class(model))
-  if (class(model[2]) == "glmnet") {
+  if (length(class(model)) > 1) {
+    model_class <- class(model)[-1]
+  } else {
+    model_class <- class(model)
+  }
+  if (model_class == "lm") {
     bic_lasso(model)
-  } else if (class(model) == "lm") {
-    bic_ols(model)
-  } else if (class(model) == "lmridge") {
+  } else if (model_class == "lmridge") {
     bic_ridge(model, lambda)
+  } else if (model_class == "glmnet") {
+    bic_ols(model)
   }
 }
 
