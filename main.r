@@ -90,4 +90,7 @@ bic_mvar(ipi_std, opt = "lasso", x = trainstd_nodate)
 # train_std %>%
 #   multivar(opt = "lasso", lambda = )
 
-# PCA (factor model)
+#PCA (factor model)
+library(corrplot)
+library(FactoMineR)
+library(factoextra)
