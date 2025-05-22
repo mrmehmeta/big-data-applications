@@ -56,3 +56,6 @@ BIC(ar_2)
 
 
 #PCA (factor model)
+library(corrplot)
+library(FactoMineR)
+library(factoextra)
