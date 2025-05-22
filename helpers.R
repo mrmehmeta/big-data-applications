@@ -7,6 +7,42 @@ library(modelsummary)
 library(lmridge)
 
 bic <- function(model, lambda = NULL) {
+  bic_ols <- function(model) {
+    p <- (model$rank - 1)
+    data <- (model$residuals + model$fitted.values)
+    ssr <- sum((model$residuals)^2)
+    t <- length(data)
+    return(log((ssr / t)) + ((p + 1) * (log(t) / t)))
+  }
+
+  bic_lasso <- function(model) {
+    p <- (model$rank - 1)
+    data <- (resid(model) + fitted(model))
+    ssr <- sum((resid(model))^2)
+    t <- nrow(data)
+    return(log((ssr / t)) + ((p) * (log(t) / t)))
+  }
+
+
+  bic_ridge <- function(model, lambda) {
+    trace <- function(A) {
+      n <- dim(A)[1]
+      tr <- 0
+      for (k in 1:n) {
+        l <- A[k, k]
+        tr <- tr + l
+      }
+
+      return(tr[[1]])
+    }
+    x <- model$xs
+    residuals <- residuals(model)
+    ssr_m <- mean(residuals^2)
+    sigma_squared <- var(residuals)
+    n <- nrow(x)
+    d_lambda <- trace(x %*% solve(t(x) %*% x + lambda * diag(ncol(x))) %*% t(x))
+    return(ssr_m + (log(n) * d_lambda * sigma_squared / n))
+  }
   if (class(model) == "glmnet") {
     bic_lasso(model)
   } else if (class(model) == "lm") {
@@ -16,40 +52,6 @@ bic <- function(model, lambda = NULL) {
   }
 }
 
-bic_ols <- function(model, p = (model$rank - 1)) {
-  data <- (model$residuals + model$fitted.values)
-  ssr <- sum((model$residuals)^2)
-  t <- length(data)
-  return(log((ssr / t)) + ((p + 1) * (log(t) / t)))
-}
-
-bic_lasso <- function(model, p = (model$rank - 1)) {
-  data <- (model$residuals + model$fitted.values)
-  ssr <- sum((model$residuals)^2)
-  t <- nrow(data)
-  return(log((ssr / t)) + ((p) * (log(t) / t)))
-}
-
-trace <- function(A) {
-  n <- dim(A)[1]
-  tr <- 0
-  for (k in 1:n) {
-    l <- A[k, k]
-    tr <- tr + l
-  }
-
-  return(tr[[1]])
-}
-
-bic_ridge <- function(model, lambda) {
-  x <- model$xs
-  residuals <- residuals(model)
-  ssr_m <- mean(residuals^2)
-  sigma_squared <- var(residuals)
-  n <- nrow(x)
-  d_lambda <- trace(x %*% solve(t(x) %*% x + lambda * diag(ncol(x))) %*% t(x))
-  return(ssr_m + (log(n) * d_lambda * sigma_squared / n))
-}
 
 # bic_lasso <- function(model) {
 #   data <- (model$residuals + model$fitted.values)
