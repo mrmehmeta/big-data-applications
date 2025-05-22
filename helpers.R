@@ -26,11 +26,11 @@ trace <- function(A){
 
 bic_ridge <- function(model, x, lambda){
   residuals <- residuals(model)
-  ssr <- sum(residuals^2)
+  ssr_m <- mean(residuals^2)
   sigma_squared <- var(residuals)
   n <- nrow(x)
   d_lambda <- trace(x %*% solve(t(x) %*% x + lambda * diag(ncol(x))) %*% t(x))
-  return((ssr + log(n) / n) * d_lambda * sigma_squared)
+  return(ssr_m + (log(n) * d_lambda * sigma_squared / n))
 }
 
 # bic_lasso <- function(model) {
@@ -118,7 +118,7 @@ multivar <- function(y, x, opt, lambda) {
 # }
 
 bic_mvar <- function(y, x, opt) {
-  lambdas <- seq(1, 200, by = 1)
+  lambdas <- seq(1, 1000, by = 1)
   n <- length(lambdas)
   bic_all <- matrix(, nrow = n, ncol = 2)
   bic_all[, 1] <- lambdas
