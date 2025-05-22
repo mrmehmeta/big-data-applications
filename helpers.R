@@ -6,11 +6,28 @@ library(glmnet)
 library(modelsummary)
 library(lmridge)
 
-bic <- function(model, p = (model$rank - 1)) {
+bic <- function(model, lambda = NULL) {
+  if (class(model) == "glmnet") {
+    bic_lasso(model)
+  } else if (class(model) == "lm") {
+    bic_ols(model)
+  } else if (class(model) == "lmridge") {
+    bic_ridge(model, lambda)
+  }
+}
+
+bic_ols <- function(model, p = (model$rank - 1)) {
   data <- (model$residuals + model$fitted.values)
   ssr <- sum((model$residuals)^2)
   t <- length(data)
   return(log((ssr / t)) + ((p + 1) * (log(t) / t)))
+}
+
+bic_lasso <- function(model, p = (model$rank - 1)) {
+  data <- (model$residuals + model$fitted.values)
+  ssr <- sum((model$residuals)^2)
+  t <- nrow(data)
+  return(log((ssr / t)) + ((p) * (log(t) / t)))
 }
 
 trace <- function(A) {
@@ -99,7 +116,7 @@ multivar <- function(y, x, opt, lambda) {
   } else if (opt == "lasso") {
     model <- glmnet(x, y, alpha = 1, lambda = lambda)
   } else if (opt == "ridge") {
-    model <- lmridge(y ~ ., data = data, K = lambda, Inter = F, scaling = "non")
+    model <- lmridge(y ~ ., data = data, K = lambda, scaling = "non")
   }
 
   list <- list(
