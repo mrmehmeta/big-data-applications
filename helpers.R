@@ -43,7 +43,8 @@ bic <- function(model, lambda = NULL) {
     d_lambda <- trace(x %*% solve(t(x) %*% x + lambda * diag(ncol(x))) %*% t(x))
     return(ssr_m + (log(n) * d_lambda * sigma_squared / n))
   }
-  if (class(model) == "glmnet") {
+  print(class(model))
+  if (class(model[2]) == "glmnet") {
     bic_lasso(model)
   } else if (class(model) == "lm") {
     bic_ols(model)
