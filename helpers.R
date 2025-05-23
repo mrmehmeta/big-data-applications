@@ -255,6 +255,18 @@ forecast_mvar <- function(model, training, test) {
   return(result)
 }
 
+forecast_rw <- function(model, training, test){
+  data <- rbind(training, test)
+  coef <- as.vector(model$coefficients)[1]
+  result <- as.vector(data[nrow(training):(nrow(data)-1),])
+ 
+  for(i in 1:length(result)){
+    result[i] <- result[i] + coef
+  }
+  
+  return(result)
+}
+
 # TODO: find will to live and write this function
 bic_pca <- function(data, regressors) {
   max <- ncol(regressors)
