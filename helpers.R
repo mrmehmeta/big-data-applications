@@ -5,6 +5,8 @@ library(forecast)
 library(glmnet)
 library(modelsummary)
 library(lmridge)
+library(FactoMineR)
+library(factoextra)
 
 # =============================================================================
 # BIC CALCULATIONS

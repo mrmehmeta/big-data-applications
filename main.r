@@ -53,6 +53,7 @@ bic(ipi_ar2)
 
 cpi_ar2 <- autoregress_lm(train_std$PCEPI, 2)
 bic(cpi_ar2)
+
 # AR(p) model
 ipi_bic_arp <- bic_ar(train_std$INDPRO) # 1 it optimal
 ipi_arp <- autoregress_lm(train_std$INDPRO, 1)
@@ -65,9 +66,6 @@ bic(ipi_arp)
 # =======================================================================
 # RANDOM WALK
 # =======================================================================
-
-# Random Walk
-# Y_t=\beta_0+Y_{t-1}+\epsilon <=> Y_t-Y_{t-1}=\beta_0+\epsilon
 random_ipi <- ipi_std
 
 for (i in length(random_ipi):2) {
@@ -88,7 +86,6 @@ trainstd_nodate <- train_std %>%
 
 ## OLS
 ipi_ols <- multivar(ipi_std, opt = "lm", x = trainstd_nodate)
-
 # modelsummary(ipi_OLS)
 
 ## Ridge
@@ -107,9 +104,6 @@ ipi_lasso <- multivar(ipi_std, opt = "lasso", lambda = 0.04328761 , x = trainstd
 # =============================================================================
 # PCA (factor model)
 # =============================================================================
-
-library(FactoMineR)
-library(factoextra)
 
 notquite <- prcomp(trainstd_nodate)
 summary(notquite)
