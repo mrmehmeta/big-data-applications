@@ -260,7 +260,7 @@ PCA_regress <- function(data, regressors) {
   max <- nrow(regressors)
   bic_all <- matrix(, nrow = max, ncol = 2)
   for (i in 1:max) {
-    bic_all[i, 2] <- bic(lm ~ regressors[1:i])
+    bic_all[i, 2] <- bic(lm(data ~ regressors[1:i]))
   }
   bic_all <- as.data.frame(bic_all)
   graph <- bic_all |> ggplot(aes(x = V1, y = V2)) +
