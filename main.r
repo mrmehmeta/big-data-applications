@@ -6,7 +6,10 @@ training <- data[cbind(0:(2 * nrow(data) / 3)), ]
 
 test <- tail(data, n = (nrow(data) / 3))
 
-# Extract variables to later use for forecasting
+# =======================================================================
+# EXTRACT VARIABLES TO LATER USE FOR FORECASTING
+# =======================================================================
+
 cpi <- training$PCEPI
 ipi <- training$INDPRO
 dates <- training$sasdate
@@ -32,6 +35,11 @@ train_std <- training %>%
   mutate_all(scale, center = T, scale = T) %>%
   cbind(dates, .)
 
+
+# =======================================================================
+# AR MODELS
+# =======================================================================
+
 # AR1 Model
 ipi_ar1 <- autoregress_lm(train_std$INDPRO, 1)
 bic(ipi_ar1)
@@ -53,6 +61,11 @@ bic(ipi_arp)
 cpi_bic_arp <- bic_ar(train_std$PCEPI, max = 10) # 5 is optimal
 cpi_arp <- autoregress_lm(train_std$INDPRO, 1)
 bic(ipi_arp)
+
+# =======================================================================
+# RANDOM WALK
+# =======================================================================
+
 # Random Walk
 # Y_t=\beta_0+Y_{t-1}+\epsilon <=> Y_t-Y_{t-1}=\beta_0+\epsilon
 random_ipi <- ipi_std
@@ -66,7 +79,10 @@ random_ipi <- random_ipi[2:length(random_ipi), ]
 b0_ipi <- mean(random_ipi)
 lm(random_ipi ~ 1)
 
-# Multivariate OLS, Ridge, Lasso
+# =======================================================================
+# MULTIVARIATE MODELS
+# =======================================================================
+
 trainstd_nodate <- train_std %>%
   select(!dates)
 
@@ -90,7 +106,11 @@ bic_mvar(ipi_std, opt = "lasso", x = trainstd_nodate)
 # train_std %>%
 #   multivar(opt = "lasso", lambda = )
 
-#PCA (factor model)
+
+# =============================================================================
+# PCA (factor model)
+# =============================================================================
+
 library(FactoMineR)
 library(factoextra)
 
