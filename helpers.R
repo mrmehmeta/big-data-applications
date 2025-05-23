@@ -256,11 +256,13 @@ forecast_mvar <- function(model, training, test) {
 }
 
 # TODO: find will to live and write this function
-PCA_regress <- function(data, regressors) {
+bic_pca <- function(data, regressors) {
   max <- nrow(regressors)
+  data <- data[-1,]
+  regressors <- regressors[-max,]
   bic_all <- matrix(, nrow = max, ncol = 2)
   for (i in 1:max) {
-    bic_all[i, 2] <- bic(lm(data ~ regressors[1:i]))
+    bic_all[i, 2] <- bic(lm(data ~ regressors[,1:i]))
   }
   bic_all <- as.data.frame(bic_all)
   graph <- bic_all |> ggplot(aes(x = V1, y = V2)) +
@@ -271,3 +273,4 @@ PCA_regress <- function(data, regressors) {
   )
   return(list)
 }
+
