@@ -12,18 +12,18 @@ bic <- function(model, lambda = NULL, data = NULL) {
     data <- (model$residuals + model$fitted.values)
     ssr <- sum((model$residuals)^2)
     t <- length(data)
-    return(log((ssr / t)) + ((p + 1) * (log(t) / t)))
+    return(log(ssr / t) + ((p + 1) * log(t) / t))
   }
 
   bic_lasso <- function(model, data) {
     p <- (model$df)
-    print(p)
-    dim(data)
-    t <- nrow(data)
-    print(t)
-    ssr <- sum((data - predict(model, 1:126))^2)
-    print(ssr)
-    return(log((ssr / t)) + ((p) * (log(t) / t)))
+    y <- data[, 1]
+    x <- as.matrix(data[, -1])
+    y_pred <- predict(model, newx = x, s = model$lambda / 1000)
+    residuals <- y - y_pred
+    ssr <- sum(residuals^2)
+    t <- length(y)
+    return(log(ssr / t) + (p * log(t) / t))
   }
 
 
@@ -127,7 +127,7 @@ multivar <- function(y, x, opt, lambda) {
   if (opt == "lm") {
     model <- lm(y ~ x)
   } else if (opt == "lasso") {
-    model <- glmnet(x, y, alpha = 1, lambda = lambda)
+    model <- glmnet(x, y, alpha = 1, lambda = (lambda / 1000))
   } else if (opt == "ridge") {
     model <- lmridge(y ~ ., data = data, K = lambda, scaling = "non")
   }
@@ -135,22 +135,17 @@ multivar <- function(y, x, opt, lambda) {
   return(model)
 }
 
-# bic_glm <- function(fit) {
-#   tLL <- fit$nulldev - deviance(fit)
-#   k <- fit$df
-#   n <- fit$nobs
-#   BIC <- log(n) * k - tLL
-#   return(BIC)
-# }
-
 bic_mvar <- function(y, x, opt) {
   lambdas <- seq(1, 1000, by = 1)
   n <- length(lambdas)
   bic_all <- matrix(, nrow = n, ncol = 2)
   bic_all[, 1] <- lambdas
+  y_trimmed <- y[-1]
+  x_trimmed <- as.matrix(x[1:(nrow(x) - 1), ])
+  data <- as.data.frame(cbind(y_trimmed, x_trimmed))
 
   for (i in 1:n) {
-    bic_all[i, 2] <- bic(multivar(y, x, opt, lambdas[i]), lambdas[i], data = y)
+    bic_all[i, 2] <- bic(multivar(y, x, opt, lambdas[i]), lambdas[i], data = data)
   }
 
   bic_all <- as.data.frame(bic_all)
