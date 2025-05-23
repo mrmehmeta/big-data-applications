@@ -71,14 +71,14 @@ trainstd_nodate <- train_std %>%
   select(!dates)
 
 ## OLS
-# ipi_ols <- multivar(ipi_std, opt = "lm", x = trainstd_nodate)
+ipi_ols <- multivar(ipi_std, opt = "lm", x = trainstd_nodate)
 
 # modelsummary(ipi_OLS)
 
 ## Ridge
-# bic_mvar(ipi_std, opt = "ridge", x = trainstd_nodate)
+bic_mvar(ipi_std, opt = "ridge", x = trainstd_nodate)
 
-# ipi_ridge <- multivar(ipi_std, opt = "ridge", lambda = 0.1, x = trainstd_nodate)
+ipi_ridge <- multivar(ipi_std, opt = "ridge", lambda = 0.1, x = trainstd_nodate)
 # modelsummary(ipi_ridge)
 
 ## Lasso
