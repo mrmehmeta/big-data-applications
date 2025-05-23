@@ -94,17 +94,14 @@ ipi_ols <- multivar(ipi_std, opt = "lm", x = trainstd_nodate)
 ## Ridge
 bic_mvar(ipi_std, opt = "ridge", x = trainstd_nodate)
 
-ipi_ridge <- multivar(ipi_std, opt = "ridge", lambda = 0.1, x = trainstd_nodate)
+
+ipi_ridge <- multivar(ipi_std, opt = "ridge", lambda = 3030.304 , x = trainstd_nodate)
 # modelsummary(ipi_ridge)
 
 ## Lasso
 bic_mvar(ipi_std, opt = "lasso", x = trainstd_nodate)
 
-# trainstd_nodate%>%
-#   bic_mvar()
-#
-# train_std %>%
-#   multivar(opt = "lasso", lambda = )
+ipi_lasso <- multivar(ipi_std, opt = "lasso", lambda = 0.04328761 , x = trainstd_nodate)
 
 
 # =============================================================================
@@ -124,3 +121,7 @@ gam_pca <- (t(as.matrix(trainstd_nodate)) %*% as.matrix(trainstd_nodate))
 eigenstuff <- eigen(gam_pca)
 ipi_eval <- rev(eigenstuff$values)
 ipi_evec <- rev(eigenstuff$vectors)
+F1_ipi <- as.matrix(trainstd_nodate) %*% matrix(ipi_evec[,1])
+F6_ipi <- as.matrix(trainstd_nodate) %*% ipi_evec[,1:6]
+
+
