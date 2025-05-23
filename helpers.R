@@ -19,7 +19,7 @@ bic <- function(model, lambda = NULL, data = NULL) {
     p <- (model$df)
     y <- data[, 1]
     x <- as.matrix(data[, -1])
-    y_pred <- predict(model, newx = x, s = model$lambda / 1000)
+    y_pred <- predict(model, newx = x, s = model$lambda)
     residuals <- y - y_pred
     ssr <- sum(residuals^2)
     t <- length(y)
