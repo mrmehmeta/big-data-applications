@@ -136,16 +136,22 @@ multivar <- function(y, x, opt, lambda) {
   if (opt == "lm") {
     model <- lm(y ~ x)
   } else if (opt == "lasso") {
-    model <- glmnet(x, y, alpha = 1, lambda = (lambda / 1000))
+    model <- glmnet(x, y, alpha = 1, lambda = lambda)
   } else if (opt == "ridge") {
     model <- lmridge(y ~ ., data = data, K = lambda, scaling = "non")
+  } else {
+    stop("Error: unknown option '", opt, "'. Use 'lm', 'lasso', or 'ridge'")
   }
 
   return(model)
 }
 
 bic_mvar <- function(y, x, opt) {
-  lambdas <- seq(1, 1000, by = 1)
+  if (opt == "lasso") {
+    lambdas <- exp(seq(log(0.001), log(1), length.out = 100))
+  } else {
+    lambdas <- seq(1, 1000, by = 10)
+  }
   n <- length(lambdas)
   bic_all <- matrix(, nrow = n, ncol = 2)
   bic_all[, 1] <- lambdas
@@ -160,7 +166,13 @@ bic_mvar <- function(y, x, opt) {
   bic_all <- as.data.frame(bic_all)
 
   graph <- bic_all |> ggplot(aes(x = V1, y = V2)) +
-    geom_point()
+    geom_point() +
+    geom_line() +
+    labs(title = paste("BIC vs Lambda for", opt), x = "Lambda", y = "BIC")
+
+  if (opt == "lasso") {
+    graph <- graph + scale_x_log10()
+  }
 
   list <- list(
     bic_all = bic_all,
