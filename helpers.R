@@ -63,15 +63,6 @@ bic <- function(model, lambda = NULL, data = NULL) {
   }
 }
 
-
-# bic_lasso <- function(model) {
-#   data <- (model$residuals + model$fitted.values)
-#   ssr <- sum((model$residuals)^2)
-#   n <- length(data)
-#   p <- (model$rank - 1)
-#   return(log((ssr / t)) + ((p + 1) * (log(t) / t)))
-# }
-
 autoregress <- function(var, p) {
   n <- length(var)
   y <- var[-c(1:p)]
