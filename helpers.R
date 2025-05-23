@@ -29,8 +29,8 @@ bic <- function(model, lambda = NULL, data = NULL) {
     ssr <- sum(residuals^2)
 
     if (ssr <= 0) {
-      stop("the ssr in the lasso regression is <= 0. This means that the data is either
-        artificially made to fit lasso or that there's a logic error")
+      stop("The ssr in the lasso regression is <= 0. This means that the data is either
+        artificially made to fit lasso or that there's a logic error.")
     }
     n <- length(y)
     return(log(ssr / n) + (p * log(n) / n))
@@ -195,7 +195,48 @@ forecast_ar <- function(model, training, test){
   m <- matrix(, nrow = nrow(test), ncol = p)
   
   for(i in 1:nrow(test)){
-    m[i,] <- data[(n+i-2-p):(n+i-2),]
+    m[i,] <- data[(nrow(training)+i-2-p):(nrow(training)+i-2),]
+  }
+  
+  for(i in 1:ncol(m)){
+    m[,i] <- m[,i] * coef[i]
+  }
+  
+  for(i in 1:nrow(m)){
+    results[i] <- sum(m[i,]) + int
+  }
+  
+  return(result)
+}
+
+forecast_mvar <- function(model, training, test){
+  data <- rbind(training, test)
+  
+  if(length(class(model)) > 1){
+    model_class <- class(model)[2]
+  }else{
+    model_class <- class(model)
+  }
+  
+  if(model_class == "lm"){
+    coefs <- as.vector(model$coefficients)
+  }else if(model_class == "lmridge"){
+    coefs <- as.vector(model$coef)
+  }else if(model_class == "glmnet"){
+    coefs <- as.vector(model$beta)
+  }else{
+    stop("\n Error: unhandled model class:\n")
+    print(model_class)
+  }
+  
+  int <- coefs[1]
+  coefs <- coefs[-1]
+  p <- length(coefs)
+  result <- c()
+  m <- matrix(, nrow = nrow(test), ncol = p)
+  
+  for(i in 1:nrow(test)){
+    m[i,] <- data[(nrow(training)+i-2),]
   }
   
   for(i in 1:ncol(m)){
