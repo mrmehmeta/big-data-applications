@@ -198,50 +198,9 @@ forecast_ar <- function(model, training, test) {
   p <- length(coefs)
   result <- c()
   m <- matrix(, nrow = nrow(test), ncol = p)
-  
-  for(i in 1:nrow(test)){
-    m[i,] <- data[(nrow(training)+i-2-p):(nrow(training)+i-2),]
-  }
-  
-  for(i in 1:ncol(m)){
-    m[,i] <- m[,i] * coef[i]
-  }
-  
-  for(i in 1:nrow(m)){
-    results[i] <- sum(m[i,]) + int
-  }
-  
-  return(result)
-}
 
-forecast_mvar <- function(model, training, test){
-  data <- rbind(training, test)
-  
-  if(length(class(model)) > 1){
-    model_class <- class(model)[2]
-  }else{
-    model_class <- class(model)
-  }
-  
-  if(model_class == "lm"){
-    coefs <- as.vector(model$coefficients)
-  }else if(model_class == "lmridge"){
-    coefs <- as.vector(model$coef)
-  }else if(model_class == "glmnet"){
-    coefs <- as.vector(model$beta)
-  }else{
-    stop("\n Error: unhandled model class:\n")
-    print(model_class)
-  }
-  
-  int <- coefs[1]
-  coefs <- coefs[-1]
-  p <- length(coefs)
-  result <- c()
-  m <- matrix(, nrow = nrow(test), ncol = p)
-  
-  for(i in 1:nrow(test)){
-    m[i,] <- data[(nrow(training)+i-2),]
+  for (i in 1:nrow(test)) {
+    m[i, ] <- data[(nrow(training) + i - 2 - p):(nrow(training) + i - 2), ]
   }
 
   for (i in 1:ncol(m)) {
@@ -255,3 +214,60 @@ forecast_mvar <- function(model, training, test){
   return(result)
 }
 
+forecast_mvar <- function(model, training, test) {
+  data <- rbind(training, test)
+
+  if (length(class(model)) > 1) {
+    model_class <- class(model)[2]
+  } else {
+    model_class <- class(model)
+  }
+
+  if (model_class == "lm") {
+    coefs <- as.vector(model$coefficients)
+  } else if (model_class == "lmridge") {
+    coefs <- as.vector(model$coef)
+  } else if (model_class == "glmnet") {
+    coefs <- as.vector(model$beta)
+  } else {
+    stop("\n Error: unhandled model class:\n")
+    print(model_class)
+  }
+
+  int <- coefs[1]
+  coefs <- coefs[-1]
+  p <- length(coefs)
+  result <- c()
+  m <- matrix(, nrow = nrow(test), ncol = p)
+
+  for (i in 1:nrow(test)) {
+    m[i, ] <- data[(nrow(training) + i - 2), ]
+  }
+
+  for (i in 1:ncol(m)) {
+    m[, i] <- m[, i] * coef[i]
+  }
+
+  for (i in 1:nrow(m)) {
+    results[i] <- sum(m[i, ]) + int
+  }
+
+  return(result)
+}
+
+# TODO: find will to live and write this function
+PCA_regress <- function(data, regressors) {
+  max <- nrow(regressors)
+  bic_all <- matrix(, nrow = max, ncol = 2)
+  for (i in 1:max) {
+    bic_all[i, 2] <- bic(lm ~ regressors[1:i])
+  }
+  bic_all <- as.data.frame(bic_all)
+  graph <- bic_all |> ggplot(aes(x = V1, y = V2)) +
+    geom_point()
+  list <- list(
+    bic_all = bic_all,
+    graph = graph
+  )
+  return(list)
+}
