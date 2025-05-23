@@ -113,7 +113,7 @@ plot(summary(notquite)$importance[3,])
 
 gam_pca <- (t(as.matrix(trainstd_nodate)) %*% as.matrix(trainstd_nodate))
 eigenstuff <- eigen(gam_pca)
-eigenstuff[nrow(eigenstuff):1,]
+
 ipi_eval <- rev(eigenstuff$values)
 ipi_evec <- as.matrix(rev(as.data.frame(eigenstuff$vectors)))
 
@@ -124,4 +124,4 @@ Fn_ipi <- (as.matrix(trainstd_nodate) %*% ipi_evec)/sqrt(nrow(trainstd_nodate))
 ipi_pca1 <- lm(ipi_std[-1,] ~ F1_ipi[-nrow(F1_ipi),])
 ipi_pca6 <- lm(ipi_std[-1,] ~ F6_ipi[-nrow(F6_ipi),])
 
-pca_regress(data = ipi_std, regressors = Fn_ipi)
+# TODO: bic_pca(data = ipi_std, regressors = Fn_ipi)

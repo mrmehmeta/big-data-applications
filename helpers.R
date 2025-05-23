@@ -257,11 +257,12 @@ forecast_mvar <- function(model, training, test) {
 
 # TODO: find will to live and write this function
 bic_pca <- function(data, regressors) {
-  max <- nrow(regressors)
-  data <- data[-1,]
+  max <- ncol(regressors)
   regressors <- regressors[-max,]
+  data <- data[-1,]
   bic_all <- matrix(, nrow = max, ncol = 2)
-  for (i in 1:max) {
+  bic_all <- 1:max
+  for (i in 1:ncol(regressors)) {
     bic_all[i, 2] <- bic(lm(data ~ regressors[,1:i]))
   }
   bic_all <- as.data.frame(bic_all)
@@ -269,7 +270,7 @@ bic_pca <- function(data, regressors) {
     geom_point()
   list <- list(
     bic_all = bic_all,
-    graph = graph
+    graph = graph 
   )
   return(list)
 }
