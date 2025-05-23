@@ -185,4 +185,26 @@ bic_mvar <- function(y, x, opt) {
 # FORECASTING
 # =============================================================================
 
-# TODO: complete forecasting logic
+forecast_ar <- function(model, training, test){
+  data <- rbind(training, test)
+  coefs <- as.vector(model$coefficients)
+  int <- coefs[1]
+  coefs <- coefs[-1]
+  p <- length(coefs)
+  result <- c()
+  m <- matrix(, nrow = nrow(test), ncol = p)
+  
+  for(i in 1:nrow(test)){
+    m[i,] <- data[(n+i-2-p):(n+i-2),]
+  }
+  
+  for(i in 1:ncol(m)){
+    m[,i] <- m[,i] * coef[i]
+  }
+  
+  for(i in 1:nrow(m)){
+    results[i] <- sum(m[i,]) + int
+  }
+  
+  return(result)
+}
