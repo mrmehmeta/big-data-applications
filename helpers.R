@@ -149,7 +149,7 @@ bic_mvar <- function(y, x, opt) {
   if (opt == "lasso") {
     lambdas <- exp(seq(log(0.001), log(1), length.out = 100))
   } else {
-    lambdas <- seq(1, 1000, by = 10)
+    lambdas <- seq(0.001, 10000, length.out = 100)
   }
   n <- length(lambdas)
   bic_all <- matrix(, nrow = n, ncol = 2)
@@ -159,7 +159,10 @@ bic_mvar <- function(y, x, opt) {
   data <- as.data.frame(cbind(y_trimmed, x_trimmed))
 
   for (i in 1:n) {
-    bic_all[i, 2] <- bic(multivar(y, x, opt, lambdas[i]), lambdas[i], data = data)
+    bic_all[i, 2] <- bic(multivar(y, x, opt, lambdas[i]),
+      lambdas[i],
+      data = data
+    )
   }
 
   bic_all <- as.data.frame(bic_all)
@@ -185,7 +188,7 @@ bic_mvar <- function(y, x, opt) {
 # FORECASTING
 # =============================================================================
 
-forecast_ar <- function(model, training, test){
+forecast_ar <- function(model, training, test) {
   data <- rbind(training, test)
   coefs <- as.vector(model$coefficients)
   int <- coefs[1]
@@ -238,14 +241,15 @@ forecast_mvar <- function(model, training, test){
   for(i in 1:nrow(test)){
     m[i,] <- data[(nrow(training)+i-2),]
   }
-  
-  for(i in 1:ncol(m)){
-    m[,i] <- m[,i] * coef[i]
+
+  for (i in 1:ncol(m)) {
+    m[, i] <- m[, i] * coef[i]
   }
-  
-  for(i in 1:nrow(m)){
-    results[i] <- sum(m[i,]) + int
+
+  for (i in 1:nrow(m)) {
+    results[i] <- sum(m[i, ]) + int
   }
-  
+
   return(result)
 }
+
