@@ -6,13 +6,17 @@ library(glmnet)
 library(modelsummary)
 library(lmridge)
 
+# =============================================================================
+# BIC CALCULATIONS
+# =============================================================================
+
 bic <- function(model, lambda = NULL, data = NULL) {
   bic_ols <- function(model) {
     p <- (model$rank - 1)
     data <- (model$residuals + model$fitted.values)
     ssr <- sum((model$residuals)^2)
-    t <- length(data)
-    return(log(ssr / t) + ((p + 1) * log(t) / t))
+    n <- length(data)
+    return(log(ssr / n) + ((p + 1) * log(n) / n))
   }
 
   bic_lasso <- function(model, data) {
@@ -20,10 +24,16 @@ bic <- function(model, lambda = NULL, data = NULL) {
     y <- data[, 1]
     x <- as.matrix(data[, -1])
     y_pred <- predict(model, newx = x, s = model$lambda)
+
     residuals <- y - y_pred
     ssr <- sum(residuals^2)
-    t <- length(y)
-    return(log(ssr / t) + (p * log(t) / t))
+
+    if (ssr <= 0) {
+      stop("the ssr in the lasso regression is <= 0. This means that the data is either
+        artificially made to fit lasso or that there's a logic error")
+    }
+    n <- length(y)
+    return(log(ssr / n) + (p * log(n) / n))
   }
 
 
@@ -62,6 +72,10 @@ bic <- function(model, lambda = NULL, data = NULL) {
     print(model_class)
   }
 }
+
+# =============================================================================
+# AUTOREGRESSIVE MODELS
+# =============================================================================
 
 autoregress <- function(var, p) {
   n <- length(var)
@@ -106,6 +120,10 @@ bic_ar <- function(var, min = 1, max = (length(var) - 1)) {
 
   return(list)
 }
+
+# =============================================================================
+# MULTIVAR MODELS
+# =============================================================================
 
 multivar <- function(y, x, opt, lambda) {
   n <- nrow(x)
@@ -152,6 +170,11 @@ bic_mvar <- function(y, x, opt) {
   return(list)
 }
 
+# =============================================================================
+# FORECASTING
+# =============================================================================
+
+# TODO: complete forecasting logic
 forecast_all <- function(model, training, test) {
   data <- cbind(training, test)
   ntr <- nrow(training)
