@@ -121,7 +121,7 @@ F1_ipi <- (as.matrix(trainstd_nodate) %*% ipi_evec[,1])/sqrt(nrow(trainstd_nodat
 F6_ipi <- (as.matrix(trainstd_nodate) %*% ipi_evec[,1:6])/sqrt(nrow(trainstd_nodate))
 Fn_ipi <- (as.matrix(trainstd_nodate) %*% ipi_evec)/sqrt(nrow(trainstd_nodate))
 
-
-
 ipi_pca1 <- lm(ipi_std[-1,] ~ F1_ipi[-nrow(F1_ipi),])
 ipi_pca6 <- lm(ipi_std[-1,] ~ F6_ipi[-nrow(F6_ipi),])
+
+pca_regress(data = ipi_std, regressors = Fn_ipi)
