@@ -54,6 +54,9 @@
           rPackages.glmnet
           rPackages.modelsummary
           rPackages.lmridge
+          rPackages.FactoMineR
+          rPackages.factoextra
+          rPackages.corrplot
         ];
         shellHook = ''
           nu
