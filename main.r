@@ -114,10 +114,13 @@ bic_mvar(ipi_std, opt = "lasso", x = trainstd_nodate)
 library(FactoMineR)
 library(factoextra)
 
-ipi_pca <- prcomp(trainstd_nodate)
-summary(ipi_pca)
+notquite <- prcomp(trainstd_nodate)
+summary(notquite)
+fviz_eig(notquite, addlabels = TRUE)
+plot(summary(notquite)$importance[3,])
 
-fviz_eig(ipi_pca, addlabels = TRUE)
 
-plot(summary(ipi_pca)$importance[3,])
-
+gam_pca <- (t(as.matrix(trainstd_nodate)) %*% as.matrix(trainstd_nodate))
+eigenstuff <- eigen(gam_pca)
+ipi_eval <- rev(eigenstuff$values)
+ipi_evec <- rev(eigenstuff$vectors)
