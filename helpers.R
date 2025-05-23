@@ -38,12 +38,11 @@ bic <- function(model, lambda = NULL, data = NULL) {
 
 
   bic_ridge <- function(model, lambda) {
-    trace <- function(A) {
-      n <- dim(A)[1]
+    trace <- function(m) {
+      n <- dim(m)[1]
       tr <- 0
-      for (k in 1:n) {
-        l <- A[k, k]
-        tr <- tr + l
+      for (i in 1:n) {
+        tr <- tr + m[i, i]
       }
 
       return(tr[[1]])
@@ -187,19 +186,3 @@ bic_mvar <- function(y, x, opt) {
 # =============================================================================
 
 # TODO: complete forecasting logic
-forecast_all <- function(model, training, test) {
-  data <- cbind(training, test)
-  ntr <- nrow(training)
-  ntst <- nrow(test)
-  coefs <- as.vector(model$coefficients)
-  int <- coefs[1]
-  coefs <- coefs[-1]
-  ncoefs <- length(coefs)
-  result <- c()
-
-  for (i in 1:ntst) {
-    data[ntr - 1 + i, ]
-  }
-
-  return(result)
-}
