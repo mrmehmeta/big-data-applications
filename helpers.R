@@ -77,14 +77,14 @@ bic <- function(model, lambda = NULL, data = NULL) {
 # AUTOREGRESSIVE MODELS
 # =============================================================================
 
-autoregress <- function(var, p) {
-  n <- length(var)
-  y <- var[-c(1:p)]
+autoregress <- function(variance, p) {
+  n <- length(variance)
+  y <- variance[-c(1:p)]
 
   x <- matrix(, nrow = (n - p), ncol = p)
 
   for (i in 1:p) {
-    x[, i] <- var[(p + 1 - i):(n - i)]
+    x[, i] <- variance[(p + 1 - i):(n - i)]
   }
 
   list <- list(
@@ -95,17 +95,17 @@ autoregress <- function(var, p) {
   return(list)
 }
 
-autoregress_lm <- function(var, p) {
-  return(lm(autoregress(var, p)$y ~ autoregress(var, p)$x))
+autoregress_lm <- function(variance, p) {
+  return(lm(autoregress(variance, p)$y ~ autoregress(variance, p)$x))
 }
 
-bic_ar <- function(var, min = 1, max = (length(var) - 1)) {
-  n <- length(var)
+bic_ar <- function(variance, min = 1, max = (length(variance) - 1)) {
+  n <- length(variance)
   bic_all <- matrix(, nrow = max, ncol = 2)
   bic_all[, 1] <- min:max
 
   for (i in min:max) {
-    bic_all[i, 2] <- bic(autoregress_lm(var, i))
+    bic_all[i, 2] <- bic(autoregress_lm(variance, i))
   }
 
   bic_all <- as.data.frame(bic_all)
