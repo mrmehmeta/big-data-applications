@@ -236,13 +236,8 @@ forecast_mvar <- function(model, training, test) {
 
   int <- coefs[1]
   coefs <- coefs[-1]
-  p <- length(coefs)
   result <- c()
-  m <- matrix(, nrow = nrow(test), ncol = p)
-
-  for (i in 1:nrow(test)) {
-    m[i, ] <- data[(nrow(training) + i - 2), ]
-  }
+  m <- data[(nrow(training)-1):(nrow(data)-1),]
 
   for (i in 1:ncol(m)) {
     m[, i] <- m[, i] * coef[i]
@@ -258,7 +253,7 @@ forecast_mvar <- function(model, training, test) {
 forecast_rw <- function(model, training, test){
   data <- rbind(training, test)
   coef <- as.vector(model$coefficients)[1]
-  result <- as.vector(data[nrow(training):(nrow(data)-1),])
+  result <- as.vector(data[(nrow(training)-1):(nrow(data)-1),])
  
   for(i in 1:length(result)){
     result[i] <- result[i] + coef
