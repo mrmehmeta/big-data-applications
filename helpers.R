@@ -57,11 +57,13 @@ bic <- function(model, lambda = NULL, data = NULL) {
     d_lambda <- trace(x %*% solve(t(x) %*% x + lambda * diag(ncol(x))) %*% t(x))
     return(ssr_m + (log(n) * d_lambda * sigma_squared / n))
   }
+  
   if (length(class(model)) > 1) {
     model_class <- class(model)[2]
   } else {
     model_class <- class(model)
   }
+  
   if (model_class == "lm") {
     return(bic_ols(model))
   } else if (model_class == "lmridge") {
@@ -78,14 +80,14 @@ bic <- function(model, lambda = NULL, data = NULL) {
 # AUTOREGRESSIVE MODELS
 # =============================================================================
 
-autoregress <- function(variance, p) {
-  n <- length(variance)
-  y <- variance[-c(1:p)]
+autoregress <- function(variable, p) {
+  n <- nrow(variable)
+  y <- variable[-c(1:p)]
 
   x <- matrix(, nrow = (n - p), ncol = p)
 
   for (i in 1:p) {
-    x[, i] <- variance[(p + 1 - i):(n - i)]
+    x[, i] <- variable[(p + 1 - i):(n - i)]
   }
 
   list <- list(
@@ -96,17 +98,17 @@ autoregress <- function(variance, p) {
   return(list)
 }
 
-autoregress_lm <- function(variance, p) {
-  return(lm(autoregress(variance, p)$y ~ autoregress(variance, p)$x))
+autoregress_lm <- function(variable, p) {
+  return(lm(autoregress(variable, p)$y ~ autoregress(variable, p)$x))
 }
 
-bic_ar <- function(variance, min = 1, max = (length(variance) - 1)) {
-  n <- length(variance)
+bic_ar <- function(variable, min = 1, max = (length(variable) - 1)) {
+  n <- length(variable)
   bic_all <- matrix(, nrow = max, ncol = 2)
   bic_all[, 1] <- min:max
 
   for (i in min:max) {
-    bic_all[i, 2] <- bic(autoregress_lm(variance, i))
+    bic_all[i, 2] <- bic(autoregress_lm(variable, i))
   }
 
   bic_all <- as.data.frame(bic_all)
@@ -180,87 +182,16 @@ bic_mvar <- function(y, x, opt) {
 
   list <- list(
     bic_all = bic_all,
-    graph = graph
+    graph = graph,
+    lambda_min = bic_all[bic_all[,2] == min(bic_all[,2]),1]
   )
 
   return(list)
 }
 
 # =============================================================================
-# FORECASTING
+# PRINCIPAL COMPONENTS ANALYSIS
 # =============================================================================
-
-forecast_ar <- function(model, training, test) {
-  data <- rbind(training, test)
-  coefs <- as.vector(model$coefficients)
-  int <- coefs[1]
-  coefs <- coefs[-1]
-  p <- length(coefs)
-  result <- c()
-  m <- matrix(, nrow = nrow(test), ncol = p)
-
-  for (i in 1:nrow(test)) {
-    m[i, ] <- data[(nrow(training) + i - 2 - p):(nrow(training) + i - 2), ]
-  }
-
-  for (i in 1:ncol(m)) {
-    m[, i] <- m[, i] * coef[i]
-  }
-
-  for (i in 1:nrow(m)) {
-    results[i] <- sum(m[i, ]) + int
-  }
-
-  return(result)
-}
-
-forecast_mvar <- function(model, training, test) {
-  data <- rbind(training, test)
-
-  if (length(class(model)) > 1) {
-    model_class <- class(model)[2]
-  } else {
-    model_class <- class(model)
-  }
-
-  if (model_class == "lm") {
-    coefs <- as.vector(model$coefficients)
-  } else if (model_class == "lmridge") {
-    coefs <- as.vector(model$coef)
-  } else if (model_class == "glmnet") {
-    coefs <- as.vector(model$beta)
-  } else {
-    stop("\n Error: unhandled model class:\n")
-    print(model_class)
-  }
-
-  int <- coefs[1]
-  coefs <- coefs[-1]
-  result <- c()
-  m <- data[(nrow(training)-1):(nrow(data)-1),]
-
-  for (i in 1:ncol(m)) {
-    m[, i] <- m[, i] * coef[i]
-  }
-
-  for (i in 1:nrow(m)) {
-    results[i] <- sum(m[i, ]) + int
-  }
-
-  return(result)
-}
-
-forecast_rw <- function(model, training, test){
-  data <- rbind(training, test)
-  coef <- as.vector(model$coefficients)[1]
-  result <- as.vector(data[(nrow(training)-1):(nrow(data)-1),])
- 
-  for(i in 1:length(result)){
-    result[i] <- result[i] + coef
-  }
-  
-  return(result)
-}
 
 # TODO: find will to live and write this function
 bic_pca <- function(data, regressors) {
@@ -282,3 +213,72 @@ bic_pca <- function(data, regressors) {
   return(list)
 }
 
+# =============================================================================
+# FORECASTING
+# =============================================================================
+
+forecast_ar <- function(model, training, test) {
+  data <- rbind(training, test)
+  coefs <- as.vector(model$coefficients)
+  int <- coefs[1]
+  coefs <- coefs[-1]
+  p <- length(coefs)
+  m <- matrix(, nrow = (nrow(test)+1), ncol = p)
+
+  for (i in 1:(nrow(test)+1)) {
+    m[i,] <- data[(nrow(training) + i - 2):(nrow(training) + i - 1 - p),]
+  }
+
+  for (i in 1:ncol(m)) {
+    m[, i] <- m[, i] * coefs[i]
+  }
+
+  result <- rowSums(m, na.rm = T) + int
+
+  return(result)
+}
+
+forecast_mvar <- function(model, training, test) {
+  data <- rbind(training, test)
+
+  if (length(class(model)) > 1) {
+    model_class <- class(model)[2]
+  } else {
+    model_class <- class(model)
+  }
+  
+  if (model_class == "lm") {
+    coefs <- as.vector(model$coefficients)
+  } else if (model_class == "lmridge") {
+    coefs <- as.vector(model$coef)
+  } else if (model_class == "glmnet") {
+    coefs <- as.vector(model$beta)
+  } else {
+    stop("\n Error: unhandled model class:\n")
+    print(model_class)
+  }
+  
+  int <- coefs[1]
+  coefs <- coefs[-1]
+  m <- data[(nrow(training)-1):(nrow(data)-1),]
+
+  for (i in 1:ncol(m)) {
+    m[, i] <- m[, i] * coefs[i]
+  }
+  
+  result <- rowSums(m, na.rm = T) + int
+  
+  return(result)
+}
+
+forecast_rw <- function(model, training, test){
+  data <- rbind(training, test)
+  coef <- as.vector(model$coefficients)[1]
+  result <- as.vector(data[(nrow(training)-1):(nrow(data)-1),]) + coef
+  
+  return(result)
+}
+
+forecast_pca <- function(){
+
+}
