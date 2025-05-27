@@ -20,16 +20,16 @@ bic <- function(model, lambda = NULL, data = NULL) {
     n <- length(data)
     return(log(ssr / n) + ((p + 1) * log(n) / n))
   }
-
+  
   bic_lasso <- function(model, data) {
     p <- (model$df)
     y <- data[, 1]
     x <- as.matrix(data[, -1])
     y_pred <- predict(model, newx = x, s = model$lambda)
-
+    
     residuals <- y - y_pred
     ssr <- sum(residuals^2)
-
+    
     if (ssr <= 0) {
       stop("The ssr in the lasso regression is <= 0. This means that the data is either
         artificially made to fit lasso or that there's a logic error.")
@@ -37,8 +37,8 @@ bic <- function(model, lambda = NULL, data = NULL) {
     n <- length(y)
     return(log(ssr / n) + (p * log(n) / n))
   }
-
-
+  
+  
   bic_ridge <- function(model, lambda) {
     trace <- function(m) {
       n <- dim(m)[1]
@@ -46,7 +46,7 @@ bic <- function(model, lambda = NULL, data = NULL) {
       for (i in 1:n) {
         tr <- tr + m[i, i]
       }
-
+      
       return(tr[[1]])
     }
     x <- model$xs
@@ -83,18 +83,18 @@ bic <- function(model, lambda = NULL, data = NULL) {
 autoregress <- function(variable, p) {
   n <- nrow(variable)
   y <- variable[-c(1:p)]
-
+  
   x <- matrix(, nrow = (n - p), ncol = p)
-
+  
   for (i in 1:p) {
     x[, i] <- variable[(p + 1 - i):(n - i)]
   }
-
+  
   list <- list(
     y = y,
     x = x
   )
-
+  
   return(list)
 }
 
@@ -106,21 +106,21 @@ bic_ar <- function(variable, min = 1, max = (length(variable) - 1)) {
   n <- length(variable)
   bic_all <- matrix(, nrow = max, ncol = 2)
   bic_all[, 1] <- min:max
-
+  
   for (i in min:max) {
     bic_all[i, 2] <- bic(autoregress_lm(variable, i))
   }
-
+  
   bic_all <- as.data.frame(bic_all)
-
+  
   graph <- bic_all |> ggplot(aes(x = V1, y = V2)) +
     geom_point()
-
+  
   list <- list(
     bic_all = bic_all,
     graph = graph
   )
-
+  
   return(list)
 }
 
@@ -134,8 +134,8 @@ multivar <- function(y, x, opt, lambda) {
   x <- x[1:(n - 1), ]
   x <- as.matrix(x)
   data <- as.data.frame(cbind(y, x))
-
-
+  
+  
   if (opt == "lm") {
     model <- lm(y ~ x)
   } else if (opt == "lasso") {
@@ -145,7 +145,7 @@ multivar <- function(y, x, opt, lambda) {
   } else {
     stop("Error: unknown option '", opt, "'. Use 'lm', 'lasso', or 'ridge'")
   }
-
+  
   return(model)
 }
 
@@ -161,31 +161,31 @@ bic_mvar <- function(y, x, opt) {
   y_trimmed <- y[-1]
   x_trimmed <- as.matrix(x[1:(nrow(x) - 1), ])
   data <- as.data.frame(cbind(y_trimmed, x_trimmed))
-
+  
   for (i in 1:n) {
     bic_all[i, 2] <- bic(multivar(y, x, opt, lambdas[i]),
-      lambdas[i],
-      data = data
+                         lambdas[i],
+                         data = data
     )
   }
-
+  
   bic_all <- as.data.frame(bic_all)
-
+  
   graph <- bic_all |> ggplot(aes(x = V1, y = V2)) +
     geom_point() +
     geom_line() +
     labs(title = paste("BIC vs Lambda for", opt), x = "Lambda", y = "BIC")
-
+  
   if (opt == "lasso") {
     graph <- graph + scale_x_log10()
   }
-
+  
   list <- list(
     bic_all = bic_all,
     graph = graph,
     lambda_min = bic_all[bic_all[,2] == min(bic_all[,2]),1]
   )
-
+  
   return(list)
 }
 
@@ -200,12 +200,15 @@ bic_pca <- function(data, regressors) {
   data <- data[-1,]
   bic_all <- matrix(, nrow = max, ncol = 2)
   bic_all <- 1:max
+  
   for (i in 1:ncol(regressors)) {
     bic_all[i, 2] <- bic(lm(data ~ regressors[,1:i]))
   }
+  
   bic_all <- as.data.frame(bic_all)
   graph <- bic_all |> ggplot(aes(x = V1, y = V2)) +
     geom_point()
+  
   list <- list(
     bic_all = bic_all,
     graph = graph 
@@ -223,24 +226,24 @@ forecast_ar <- function(model, training, test) {
   int <- coefs[1]
   coefs <- coefs[-1]
   p <- length(coefs)
-  m <- matrix(, nrow = (nrow(test)+1), ncol = p)
-
-  for (i in 1:(nrow(test)+1)) {
-    m[i,] <- data[(nrow(training) + i - 2):(nrow(training) + i - 1 - p),]
+  m <- matrix(, nrow = nrow(test), ncol = p)
+  
+  for (i in 1:nrow(test)) {
+    m[i,] <- data[(nrow(training) + i - 1):(nrow(training) + i - p),]
   }
-
+  
   for (i in 1:ncol(m)) {
     m[, i] <- m[, i] * coefs[i]
   }
-
+  
   result <- rowSums(m, na.rm = T) + int
-
+  
   return(result)
 }
 
 forecast_mvar <- function(model, training, test) {
   data <- rbind(training, test)
-
+  
   if (length(class(model)) > 1) {
     model_class <- class(model)[2]
   } else {
@@ -260,8 +263,8 @@ forecast_mvar <- function(model, training, test) {
   
   int <- coefs[1]
   coefs <- coefs[-1]
-  m <- data[(nrow(training)-1):(nrow(data)-1),]
-
+  m <- data[nrow(training):(nrow(data)-1),]
+  
   for (i in 1:ncol(m)) {
     m[, i] <- m[, i] * coefs[i]
   }
@@ -274,11 +277,11 @@ forecast_mvar <- function(model, training, test) {
 forecast_rw <- function(model, training, test){
   data <- rbind(training, test)
   coef <- as.vector(model$coefficients)[1]
-  result <- as.vector(data[(nrow(training)-1):(nrow(data)-1),]) + coef
+  result <- as.vector(data[nrow(training):(nrow(data)-1),]) + coef
   
   return(result)
 }
 
 forecast_pca <- function(){
-
+  
 }

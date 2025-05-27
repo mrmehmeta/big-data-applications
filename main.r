@@ -75,9 +75,9 @@ model_arp <- autoregress_lm(ipi_std, 1)
 
 bic(model_arp)
 
-# cpi_bic_arp <- bic_ar(train_std$PCEPI, max = 10) # 5 is optimal
-# cpi_arp <- autoregress_lm(train_std$INDPRO, 1)
-# bic(ipi_arp)
+# cpi_bic_arp <- bic_ar(cpi_std, max = 10) # 5 is optimal
+# cpi_arp <- autoregress_lm(cpi_std, 1)
+# bic(cpi_arp)
 
 # =============================================================================
 # RANDOM WALK
@@ -110,7 +110,6 @@ model_ridge <- multivar(ipi_std, opt = "ridge", lambda = bic_ridge$lambda_min, x
 ## Lasso
 bic_lasso <- bic_mvar(ipi_std, opt = "lasso", x = train_std)
 model_lasso <- multivar(ipi_std, opt = "lasso", lambda = bic_lasso$lambda_min, x = train_std)
-
 
 # =============================================================================
 # PRINCIPAL COMPONENTS ANALYSIS
