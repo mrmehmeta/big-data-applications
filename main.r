@@ -14,14 +14,16 @@ data_std <- data %>%
   mutate_all(scale, center = T, scale = T)
 
 datastd_wdate <- data_std %>%
-  cbind(data$sasdate, .)
+  cbind(as.Date(data$sasdate, format = "%m/%d/%y"), .) %>% 
+  rename(sasdate = "as.Date(data$sasdate, format = \"%m/%d/%y\")")
 
 train_std <- training %>%
   select(!sasdate) %>%
   mutate_all(scale, center = T, scale = T)
 
 trainstd_wdate <- train_std %>%
-  cbind(training$sasdate, .)
+  cbind(as.Date(training$sasdate, format = "%m/%d/%y"), .) %>% 
+  rename(sasdate = "as.Date(training$sasdate, format = \"%m/%d/%y\")")
 
 train_mean <- training %>%
   select(!sasdate) %>% 
@@ -38,7 +40,8 @@ test_std <- test %>%
   mutate_all(scale, center = T, scale = T)
 
 teststd_wdate <- test_std %>%
-  cbind(test$sasdate, .)
+  cbind(as.Date(test$sasdate, format = "%m/%d/%y"), .) %>% 
+  rename(sasdate = "as.Date(test$sasdate, format = \"%m/%d/%y\")")
 
 ipi <- training$INDPRO
 ipi_std <- train_std$INDPRO
@@ -172,6 +175,31 @@ pca_6 <- (ipi_stdev * forecast_pca(ipi_pca6, train_std, test_std)) + ipi_mean
 # =============================================================================
 data_orig <- read_csv("current.csv")
 
+level <- data_orig[2:nrow(data_orig),] %>% 
+  mutate(sasdate = as.character(as.Date(sasdate, format = "%m/%d/%Y"))) %>% 
+  filter(sasdate %in% rbind(trainstd_wdate[nrow(trainstd_wdate),], teststd_wdate)$sasdate) %>% 
+  select(INDPRO)
+
+level <- log(as.vector(level[1:(nrow(level)-1),]$INDPRO))
+
+# AR(p)
+ar_level <- exp(ar + level)
+
+# Random Walk
+rw_level <- exp(randomwalk + level)
+
+# OLS
+ols_level <- exp(ols + level)
+
+# Ridge
+ridge_level <- exp(ridge + level)
+
+# Lasso
+lasso_level <- exp(lasso + level)
+
+# PCA
+pca1_level <- exp(pca_1 + level)
+pca6_level <- exp(pca_6 + level)
 
 # =============================================================================
 # CALCULATING RMSE
