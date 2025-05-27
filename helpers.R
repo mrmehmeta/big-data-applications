@@ -192,6 +192,9 @@ bic_mvar <- function(y, x, opt) {
 # =============================================================================
 # PRINCIPAL COMPONENTS ANALYSIS
 # =============================================================================
+pca <- function(data, r){
+  return((as.matrix(data) %*% as.matrix(rev(as.data.frame(eigen((t(as.matrix(data)) %*% as.matrix(data)))$vectors)))[,1:r])/sqrt(nrow(data)))
+}
 
 # TODO: find will to live and write this function
 bic_pca <- function(data, regressors) {
@@ -282,6 +285,19 @@ forecast_rw <- function(model, training, test){
   return(result)
 }
 
-forecast_pca <- function(){
+forecast_pca <- function(model, training, test){
+  data <- rbind(training, test)
+  coefs <- as.vector(model$coefficients)
+  int <- coefs[1]
+  coefs <- coefs[-1]
+  p <- length(coefs)
+  m <- matrix(, nrow = nrow(test), ncol = p)
   
+  for(i in 1:nrow(test)){
+    m[i,] <- tail(autoregress(pca(data[1:(nrow(training)+i),], p), p)$x, n = 1)
+  }
+  
+  result <- rowSums(m, na.rm = T) + int
+  
+  return(result)
 }

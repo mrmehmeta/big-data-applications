@@ -161,11 +161,16 @@ forecast_mvar(model_lasso, train_std, test_std)
 lasso <- (ipi_stdev * forecast_mvar(model_lasso, train_std, test_std)) + ipi_mean
 
 # PCA
-# forecast_pca(.)
+forecast_pca(ipi_pca1, train_std, test_std)
+pca_1 <- (ipi_stdev * forecast_pca(ipi_pca1, train_std, test_std)) + ipi_mean
+
+forecast_pca(ipi_pca6, train_std, test_std)
+pca_6 <- (ipi_stdev * forecast_pca(ipi_pca6, train_std, test_std)) + ipi_mean
 
 # =============================================================================
 # LEVELING THE FORECASTS
 # =============================================================================
+data_orig <- read_csv("current.csv")
 
 
 # =============================================================================
