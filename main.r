@@ -178,6 +178,7 @@ data_orig <- read_csv("current.csv")
 level <- data_orig[2:nrow(data_orig),] %>% 
   mutate(sasdate = as.character(as.Date(sasdate, format = "%m/%d/%Y"))) %>% 
   filter(sasdate %in% rbind(trainstd_wdate[nrow(trainstd_wdate),], teststd_wdate)$sasdate) %>% 
+  arrange(as.Date(sasdate)) %>% 
   select(INDPRO)
 
 level <- log(as.vector(level[1:(nrow(level)-1),]$INDPRO))
