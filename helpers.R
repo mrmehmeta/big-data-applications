@@ -193,7 +193,10 @@ bic_mvar <- function(y, x, opt) {
 # PRINCIPAL COMPONENTS ANALYSIS
 # =============================================================================
 pca <- function(data, r = ncol(data)){
-  return(((as.matrix(data) %*% as.matrix(rev(as.data.frame(eigen((t(as.matrix(data)) %*% as.matrix(data)))$vectors)))[,1:r])/sqrt(nrow(data))))
+  fac <- ((as.matrix(data) %*% as.matrix(rev(as.data.frame(eigen((t(as.matrix(data)) %*% as.matrix(data)))$vectors)))[,1:r])/sqrt(nrow(data)))
+  fac <- fac[1:(nrow(fac)-1),]
+  
+  return(fac)
 }
 
 # TODO: find will to live and write this function
@@ -287,22 +290,17 @@ forecast_rw <- function(model, training, test){
 
 forecast_pca <- function(model, training, test){
   data <- rbind(training, test)
-  coefs <- as.vector(model$coefficients)
+  coefs <- as.matrix(model$coefficients)
   int <- coefs[1]
-  coefs <- coefs[-1]
-  r <- length(coefs)
-  m <- matrix(, nrow = nrow(test), ncol = r)
+  coefs <- as.matrix(coefs[-1])
+  r <- nrow(coefs)
+  result <- c()
   
   for(i in 1:nrow(test)){
     f <- pca(data[1:(nrow(training)+i),], r)
-    m[i,] <- f[(nrow(f)-2),]
+    pred <- (f %*% coefs)
+    result[i] <- pred[nrow(pred)]
   }
-  
-  for (i in 1:r) {
-    m[, i] <- m[, i] * coefs[i]
-  }
-  
-  result <- rowSums(m, na.rm = T) + int
   
   return(result)
 }

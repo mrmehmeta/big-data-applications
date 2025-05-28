@@ -139,8 +139,8 @@ plot(summary(notquite)$importance[3,])
 
 F_ipi <- pca(train_std)
 
-ipi_pca1 <- lm(ipi_std[-1,] ~ F_ipi[-nrow(F_ipi), 1])
-ipi_pca6 <- lm(ipi_std[-1,] ~ F_ipi[-nrow(F_ipi), 1:6])
+ipi_pca1 <- lm(ipi_std[-1,] ~ F_ipi[,1])
+ipi_pca6 <- lm(ipi_std[-1,] ~ F_ipi[,1:6])
 
 # TODO: bic_p# TODO: bic_p# TODO: bic_pca(data = ipi_std, regressors = Fn_ipi)
 
