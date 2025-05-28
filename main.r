@@ -124,20 +124,25 @@ fviz_eig(notquite, addlabels = TRUE)
 plot(summary(notquite)$importance[3,])
 
 
-gam_pca <- (t(as.matrix(train_std)) %*% as.matrix(train_std))
-eigenstuff <- eigen(gam_pca)
+# gam_pca <- (t(as.matrix(train_std)) %*% as.matrix(train_std))
+# eigenstuff <- eigen(gam_pca)
+# 
+# ipi_eval <- rev(eigenstuff$values)
+# ipi_evec <- as.matrix(rev(as.data.frame(eigenstuff$vectors)))
+# 
+# F1_ipi <- (as.matrix(train_std) %*% ipi_evec[,1])/sqrt(nrow(train_std))
+# F6_ipi <- (as.matrix(train_std) %*% ipi_evec[,1:6])/sqrt(nrow(train_std))
+# Fn_ipi <- (as.matrix(train_std) %*% ipi_evec)/sqrt(nrow(train_std))
+# 
+# ipi_pca1 <- lm(ipi_std[-1,] ~ F1_ipi[-nrow(F1_ipi),])
+# ipi_pca6 <- lm(ipi_std[-1,] ~ F6_ipi[-nrow(F6_ipi),])
 
-ipi_eval <- rev(eigenstuff$values)
-ipi_evec <- as.matrix(rev(as.data.frame(eigenstuff$vectors)))
+F_ipi <- pca(train_std)
 
-F1_ipi <- (as.matrix(train_std) %*% ipi_evec[,1])/sqrt(nrow(train_std))
-F6_ipi <- (as.matrix(train_std) %*% ipi_evec[,1:6])/sqrt(nrow(train_std))
-Fn_ipi <- (as.matrix(train_std) %*% ipi_evec)/sqrt(nrow(train_std))
+ipi_pca1 <- lm(ipi_std[-1,] ~ F_ipi[-nrow(F_ipi), 1])
+ipi_pca6 <- lm(ipi_std[-1,] ~ F_ipi[-nrow(F_ipi), 1:6])
 
-ipi_pca1 <- lm(ipi_std[-1,] ~ F1_ipi[-nrow(F1_ipi),])
-ipi_pca6 <- lm(ipi_std[-1,] ~ F6_ipi[-nrow(F6_ipi),])
-
-# TODO: bic_pca(data = ipi_std, regressors = Fn_ipi)
+# TODO: bic_p# TODO: bic_p# TODO: bic_pca(data = ipi_std, regressors = Fn_ipi)
 
 # =============================================================================
 # FORECASTING THE STANDARDIZED DATA
@@ -178,10 +183,16 @@ data_orig <- read_csv("current.csv")
 level <- data_orig[2:nrow(data_orig),] %>% 
   mutate(sasdate = as.character(as.Date(sasdate, format = "%m/%d/%Y"))) %>% 
   filter(sasdate %in% rbind(trainstd_wdate[nrow(trainstd_wdate),], teststd_wdate)$sasdate) %>% 
-  arrange(as.Date(sasdate)) %>% 
-  select(INDPRO)
+  arrange(as.Date(sasdate))
 
 level <- log(as.vector(level[1:(nrow(level)-1),]$INDPRO))
+
+# level <- data_orig[2:nrow(data_orig),] %>% 
+#   mutate(sasdate = as.character(as.Date(sasdate, format = "%m/%d/%Y"))) %>% 
+#   filter(sasdate %in% rbind(trainstd_wdate[(nrow(trainstd_wdate)-1):nrow(trainstd_wdate),], teststd_wdate)$sasdate) %>% 
+#   arrange(as.Date(sasdate))
+# 
+# level <- (2 * log(as.vector(level[2:(nrow(level)-1),]$PCEPI))) - log(as.vector(level[1:(nrow(level)-2),]$PCEPI))
 
 # AR(p)
 ar_level <- exp(ar + level)
@@ -204,5 +215,10 @@ pca6_level <- exp(pca_6 + level)
 
 # =============================================================================
 # CALCULATING RMSE
+# =============================================================================
+
+
+# =============================================================================
+# GRAPHING
 # =============================================================================
 
