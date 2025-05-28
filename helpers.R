@@ -299,7 +299,7 @@ forecast_pca <- function(model, training, test){
   for(i in 1:nrow(test)){
     f <- pca(data[1:(nrow(training)+i),], r)
     pred <- (f %*% coefs)
-    result[i] <- pred[nrow(pred)]
+    result[i] <- pred[nrow(pred)] + int
   }
   
   return(result)
