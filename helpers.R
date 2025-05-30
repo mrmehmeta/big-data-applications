@@ -302,3 +302,10 @@ forecast_pca <- function(model, training, test){
   
   return(result)
 }
+
+# =============================================================================
+# CALCULATING RMSE
+# =============================================================================
+rmse <- function(pred, observed){
+  return(sqrt((sum((pred - observed)^2))/length(observed)))
+}

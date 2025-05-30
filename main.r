@@ -102,7 +102,7 @@ bic_lasso <- bic_mvar(ipi_std, opt = "lasso", x = train_std)
 model_lasso <- multivar(ipi_std, opt = "lasso", lambda = bic_lasso$lambda_min, x = train_std)
 
 # =============================================================================
-# PRINCIPAL COMPONENTS ANALYSIS
+# PRINCIPAL COMPONENT ANALYSIS
 # =============================================================================
 
 notquite <- prcomp(train_std)
@@ -198,7 +198,12 @@ for(i in 2:ncol(forecasts)){
 # =============================================================================
 # CALCULATING RMSE
 # =============================================================================
-
+ar_rmse <- rmse(forecasts$ar_level, forecasts$INDPRO)
+rw_rmse <- rmse(forecasts$rw_level, forecasts$INDPRO)
+ols_rmse <- rmse(forecasts$ols_level, forecasts$INDPRO)
+ridge_rmse <- rmse(forecasts$ridge_level, forecasts$INDPRO)
+lasso_rmse <- rmse(forecasts$lasso_level, forecasts$INDPRO)
+pca1_rmse <- rmse(forecasts$pca1_level, forecasts$INDPRO)
 
 # =============================================================================
 # GRAPHING
