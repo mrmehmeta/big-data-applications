@@ -218,11 +218,11 @@ forecasts_h <- forecasts %>%
 forecasts_h %>% ggplot(aes(x = as.Date(sasdate, format = "%m/%d/%y"), y = value, colour = model)) +
   facet_wrap(vars(model))+
   geom_line()+
+  geom_line(aes(y = INDPRO))
   xlab("Date")+
   ylab("Value")+
   theme_grey()+
-  scale_fill_paletteer_d("MoMAColors::Abbott")+
-  legen
+  scale_fill_paletteer_d("MoMAColors::Abbott")
 
 forecasts %>% ggplot(aes(x = as.Date(sasdate, format = "%m/%d/%y"), y = value)) +
   geom_line(aes(y = INDPRO), color = "black") + 
