@@ -76,10 +76,6 @@ main <- function(variable) {
 
   bic(model_arp)
 
-  # cpi_bic_arp <- bic_ar(cpi_std, max = 10)
-  # cpi_arp <- autoregress_lm(cpi_std, 1)
-  # bic(cpi_arp)
-
   # =============================================================================
   # RANDOM WALK
   # =============================================================================
@@ -104,8 +100,6 @@ main <- function(variable) {
   bic_ridge <- bic_mvar(variable$std, opt = "ridge", x = train_std)
   model_ridge <- multivar(variable$std, opt = "ridge", lambda = bic_ridge$lambda_min, x = train_std)
 
-  # modelsummary(ipi_ridge)
-
   ## Lasso
   bic_lasso <- bic_mvar(variable$std, opt = "lasso", x = train_std)
   model_lasso <- multivar(variable$std, opt = "lasso", lambda = bic_lasso$lambda_min, x = train_std)
@@ -118,20 +112,6 @@ main <- function(variable) {
   summary(notquite)
   fviz_eig(notquite, addlabels = TRUE)
   plot(summary(notquite)$importance[3, ])
-
-
-  # gam_pca <- (t(as.matrix(train_std)) %*% as.matrix(train_std))
-  # eigenstuff <- eigen(gam_pca)
-  #
-  # ipi_eval <- rev(eigenstuff$values)
-  # ipi_evec <- as.matrix(rev(as.data.frame(eigenstuff$vectors)))
-  #
-  # F1_ipi <- (as.matrix(train_std) %*% ipi_evec[,1])/sqrt(nrow(train_std))
-  # F6_ipi <- (as.matrix(train_std) %*% ipi_evec[,1:6])/sqrt(nrow(train_std))
-  # Fn_ipi <- (as.matrix(train_std) %*% ipi_evec)/sqrt(nrow(train_std))
-  #
-  # ipi_pca1 <- lm(variable$std[-1,] ~ F1_ipi[-nrow(F1_ipi),])
-  # ipi_pca6 <- lm(variable$std[-1,] ~ F6_ipi[-nrow(F6_ipi),])
 
   f_var <- pca(train_std)
 
