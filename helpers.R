@@ -122,7 +122,9 @@ bic_ar <- function(variable, min = 1, max = (length(variable) - 1)) {
   bic_all <- as.data.frame(bic_all)
   
   graph <- bic_all |> ggplot(aes(x = V1, y = V2)) +
-    geom_point()
+    geom_point() +
+    geom_line() +
+    labs(title = paste("BIC by p for Autoregression"), x = "p", y = "BIC")
   
   list <- list(
     bic_all = bic_all,
@@ -183,7 +185,7 @@ bic_mvar <- function(y, x, opt) {
   graph <- bic_all |> ggplot(aes(x = V1, y = V2)) +
     geom_point() +
     geom_line() +
-    labs(title = paste("BIC vs Lambda for", opt), x = "Lambda", y = "BIC")
+    labs(title = paste("BIC by lambda for", case_when(opt == "lasso" ~ "Lasso", opt == "ridge" ~ "Ridge")), x = "lambda", y = "BIC")
   
   if (opt == "lasso") {
     graph <- graph + scale_x_log10()
@@ -219,7 +221,9 @@ bic_pcr <- function(y, x) {
   
   bic_all <- as.data.frame(bic_all)
   graph <- bic_all |> ggplot(aes(x = V1, y = V2)) +
-    geom_point()
+    geom_point() +
+    geom_line() +
+    labs(title = paste("BIC by r for Principal Component Regression"), x = "r", y = "BIC")
   
   list <- list(
     bic_all = bic_all,

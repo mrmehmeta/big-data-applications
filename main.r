@@ -297,7 +297,7 @@ ipi_pivot %>% ggplot(aes(x = as.Date(sasdate, format = "%m/%d/%y"))) +
   ylab("Value")+
   theme_grey()+
   theme(legend.position = "none")+
-  ggtitle("Graphical Comparison of Estimated models for IPI", subtitle = "INDPRO values are in black.")+
+  ggtitle("Graphical Comparison of Estimated Models for IPI", subtitle = "IPI values are in black.")+
   scale_fill_paletteer_d("MoMAColors::Abbott")
 
 cpi_pivot %>% ggplot(aes(x = as.Date(sasdate, format = "%m/%d/%y"))) +
@@ -308,5 +308,5 @@ cpi_pivot %>% ggplot(aes(x = as.Date(sasdate, format = "%m/%d/%y"))) +
   ylab("Value")+
   theme_grey()+
   theme(legend.position = "none")+
-  ggtitle("Graphical Comparison of Estimated models for CPI", subtitle = "CPI values are in black.")+
+  ggtitle("Graphical Comparison of Estimated Models for CPI", subtitle = "CPI values are in black.")+
   scale_fill_paletteer_d("MoMAColors::Abbott")
