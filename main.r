@@ -1,6 +1,7 @@
 source("helpers.R")
 
 data <- read_csv("data_BDA_2025.csv")
+data_orig <- read_csv("current.csv")
 
 # =============================================================================
 # EXTRACTING VARIABLES
@@ -43,11 +44,18 @@ teststd_wdate <- test_std %>%
   cbind(as.Date(test$sasdate, format = "%m/%d/%y"), .) %>%
   rename(sasdate = "as.Date(test$sasdate, format = \"%m/%d/%y\")")
 
+# Merging the forecasts with the dates and observed values
+test_orig <- data_orig[2:nrow(data_orig), ] %>%
+  mutate(sasdate = as.character(as.Date(sasdate, format = "%m/%d/%Y"))) %>%
+  filter(sasdate %in% teststd_wdate$sasdate) %>%
+  arrange(as.Date(sasdate))
+
 ipi <- list(
   id = "ipi",
   value = training$INDPRO,
   std = train_std$INDPRO,
   std_test = test_std$INDPRO,
+  orig_test = test_orig$INDPRO,
   mean = train_mean$INDPRO,
   stdev = train_stdev$INDPRO
 )
@@ -57,6 +65,7 @@ cpi <- list(
   value = training$PCEPI,
   std = train_std$PCEPI,
   std_test = test_std$PCEPI,
+  orig_test = test_orig$PCEPI,
   mean = train_mean$PCEPI,
   stdev = train_stdev$PCEPI
 )
@@ -118,7 +127,7 @@ main <- function(variable) {
   variable$pca1 <- lm(variable$std[-1, ] ~ f_var[, 1])
   variable$pca6 <- lm(variable$std[-1, ] ~ f_var[, 1:6])
 
-  bic_pca(y = variable$std, x = f_var)
+  # bic_pca(y = variable$std, x = f_var)
 
   # =============================================================================
   # FORECASTING THE STANDARDIZED DATA
@@ -154,8 +163,6 @@ main <- function(variable) {
   # =============================================================================
   # LEVELING THE FORECASTS
   # =============================================================================
-  data_orig <- read_csv("current.csv")
-
   if (variable$id == "ipi") {
     level <- data_orig[2:nrow(data_orig), ] %>%
       mutate(sasdate = as.character(as.Date(sasdate, format = "%m/%d/%Y"))) %>%
@@ -191,15 +198,9 @@ main <- function(variable) {
   pca1_level <- exp(pca_1 + level)
   pca6_level <- exp(pca_6 + level)
 
-  # Merging the forecasts with the dates and observed values
-  test_orig <- data_orig[2:nrow(data_orig), ] %>%
-    mutate(sasdate = as.character(as.Date(sasdate, format = "%m/%d/%Y"))) %>%
-    filter(sasdate %in% teststd_wdate$sasdate) %>%
-    arrange(as.Date(sasdate))
-
-  forecasts <- cbind(test$sasdate, test_orig$INDPRO, ar_level, rw_level, ols_level, ridge_level, lasso_level, pca1_level, pca6_level) %>%
+  forecasts <- cbind(test$sasdate, variable$orig_test, ar_level, rw_level, ols_level, ridge_level, lasso_level, pca1_level, pca6_level) %>%
     as.data.frame() %>%
-    rename(sasdate = V1, INDPRO = V2)
+    rename(sasdate = V1, orig_test = V2)
 
   for (i in 2:ncol(forecasts)) {
     forecasts[, i] <- as.numeric(forecasts[, i])
@@ -209,18 +210,18 @@ main <- function(variable) {
   # CALCULATING RMSE
   # =============================================================================
 
-  ar_rmse <- rmse(forecasts$ar_level, forecasts$INDPRO)
-  rw_rmse <- rmse(forecasts$rw_level, forecasts$INDPRO)
-  ols_rmse <- rmse(forecasts$ols_level, forecasts$INDPRO)
-  ridge_rmse <- rmse(forecasts$ridge_level, forecasts$INDPRO)
-  lasso_rmse <- rmse(forecasts$lasso_level, forecasts$INDPRO)
-  pca1_rmse <- rmse(forecasts$pca1_level, forecasts$INDPRO)
+  ar_rmse <- rmse(forecasts$ar_level, forecasts$orig_test)
+  rw_rmse <- rmse(forecasts$rw_level, forecasts$orig_test)
+  ols_rmse <- rmse(forecasts$ols_level, forecasts$orig_test)
+  ridge_rmse <- rmse(forecasts$ridge_level, forecasts$orig_test)
+  lasso_rmse <- rmse(forecasts$lasso_level, forecasts$orig_test)
+  pca1_rmse <- rmse(forecasts$pca1_level, forecasts$orig_test)
 
   # =============================================================================
   # GRAPHING
   # =============================================================================
   forecasts %>% ggplot(aes(x = as.Date(sasdate, format = "%m/%d/%y"))) +
-    geom_line(aes(y = INDPRO), color = "black") +
+    geom_line(aes(y = orig_test), color = "black") +
     geom_line(aes(y = ar_level), color = "blue") +
     geom_line(aes(y = rw_level), color = "red") +
     geom_line(aes(y = ols_level), color = "green") +
