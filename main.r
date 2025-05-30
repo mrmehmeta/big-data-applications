@@ -44,6 +44,7 @@ teststd_wdate <- test_std %>%
   rename(sasdate = "as.Date(test$sasdate, format = \"%m/%d/%y\")")
 
 ipi <- list(
+  id = "ipi",
   value = training$INDPRO,
   std = train_std$INDPRO,
   std_test = test_std$INDPRO,
@@ -52,6 +53,7 @@ ipi <- list(
 )
 
 cpi <- list(
+  id = "cpi",
   value = training$PCEPI,
   std = train_std$PCEPI,
   stdtest = test_std$PCEPI,
@@ -174,14 +176,14 @@ main <- function(variable) {
   # =============================================================================
   data_orig <- read_csv("current.csv")
 
-  if (variable == ipi) {
+  if (variable$id == "ipi") {
     level <- data_orig[2:nrow(data_orig), ] %>%
       mutate(sasdate = as.character(as.Date(sasdate, format = "%m/%d/%Y"))) %>%
       filter(sasdate %in% rbind(trainstd_wdate[nrow(trainstd_wdate), ], teststd_wdate)$sasdate) %>%
       arrange(as.Date(sasdate))
 
     level <- log(as.vector(level[1:(nrow(level) - 1), ]$INDPRO))
-  } else if (variable == cpi) {
+  } else if (variable$id == "cpi") {
     level <- data_orig[2:nrow(data_orig), ] %>%
       mutate(sasdate = as.character(as.Date(sasdate, format = "%m/%d/%Y"))) %>%
       filter(sasdate %in% rbind(trainstd_wdate[(nrow(trainstd_wdate) - 1):nrow(trainstd_wdate), ], teststd_wdate)$sasdate) %>%
