@@ -7,6 +7,7 @@ library(modelsummary)
 library(lmridge)
 library(FactoMineR)
 library(factoextra)
+library(paletteer)
 
 # =============================================================================
 # BIC CALCULATIONS
