@@ -243,11 +243,77 @@ ipi_model <- modelling(ipi)
 # =============================================================================
 # GRAPHING
 # =============================================================================
-ipi_model$forecasts %>% ggplot(aes(x = as.Date(sasdate, format = "%m/%d/%y"))) +
-  geom_line(aes(y = orig_test), color = "black") +
+var_lables <- c(
+  `ar_level` = "Autoregression",
+  `lasso_level` = "Lasso",
+  `ols_level` = "OLS",
+  `pca1_level` = "Principal Component Regression",
+  `ridge_level` = "Ridge",
+  `rw_level` = "Random Walk")
+
+ipi_pivot <- ipi_model$forecasts %>%
+  select(!pca6_level) %>%
+  pivot_longer(
+    cols = !c(sasdate,orig_test),
+    names_to = "model",
+    values_to = "value"
+  )
+
+cpi_pivot <- cpi_model$forecasts %>%
+  select(!pca6_level) %>%
+  pivot_longer(
+    cols = !c(sasdate, orig_test),
+    names_to = "model",
+    values_to = "value"
+  )
+
+
+ipi_model$forecasts %>% ggplot(aes(x = as.Date(sasdate, format = "%m/%d/%y"), y = value)) +
+  geom_line(aes(y = orig_test), color = "black") + 
   geom_line(aes(y = ar_level), color = "blue") +
   geom_line(aes(y = rw_level), color = "red") +
   geom_line(aes(y = ols_level), color = "green") +
   geom_line(aes(y = ridge_level), color = "yellow") +
   geom_line(aes(y = lasso_level), color = "magenta") +
-  geom_line(aes(y = pca1_level), color = "cyan")
+  geom_line(aes(y = pca1_level), color = "cyan")+
+  xlab("Date")+
+  ylab("Value")+
+  ggtitle("Overall comparison for IPI")+
+  theme_grey()
+
+cpi_model$forecasts %>% ggplot(aes(x = as.Date(sasdate, format = "%m/%d/%y"), y = value)) +
+  geom_line(aes(y = orig_test), color = "black") + 
+  geom_line(aes(y = ar_level), color = "blue") +
+  geom_line(aes(y = rw_level), color = "red") +
+  geom_line(aes(y = ols_level), color = "green") +
+  geom_line(aes(y = ridge_level), color = "yellow") +
+  geom_line(aes(y = lasso_level), color = "magenta") +
+  geom_line(aes(y = pca1_level), color = "cyan")+
+  xlab("Date")+
+  ylab("Value")+
+  ggtitle("Overall comparison for CPI")+
+  theme_grey()
+
+ipi_pivot %>% ggplot(aes(x = as.Date(sasdate, format = "%m/%d/%y"))) +
+  geom_line(aes(y = orig_test))+
+  facet_wrap(vars(model), labeller = as_labeller(var_lables))+
+  geom_line(aes(y = value, colour = model))+
+  xlab("Date")+
+  ylab("Value")+
+  theme_grey()+
+  theme(legend.position = "none")+
+  ggtitle("Graphical Comparison of Estimated models for IPI", subtitle = "Black are INDPRO values")+
+  scale_fill_paletteer_d("MoMAColors::Abbott")
+
+cpi_pivot %>% ggplot(aes(x = as.Date(sasdate, format = "%m/%d/%y"))) +
+  geom_line(aes(y = orig_test))+
+  facet_wrap(vars(model), labeller = as_labeller(var_lables))+
+  geom_line(aes(y = value, colour = model))+
+  xlab("Date")+
+  ylab("Value")+
+  theme_grey()+
+  theme(legend.position = "none")+
+  ggtitle("Graphical Comparison of Estimated models for CPI", subtitle = "Black are Cpi values")+
+  scale_fill_paletteer_d("MoMAColors::Abbott")
+
+
