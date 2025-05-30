@@ -229,12 +229,12 @@ main <- function(variable) {
   # CALCULATING RMSE
   # =============================================================================
 
-ar_rmse <- rmse(forecasts$ar_level, forecasts$INDPRO)
-rw_rmse <- rmse(forecasts$rw_level, forecasts$INDPRO)
-ols_rmse <- rmse(forecasts$ols_level, forecasts$INDPRO)
-ridge_rmse <- rmse(forecasts$ridge_level, forecasts$INDPRO)
-lasso_rmse <- rmse(forecasts$lasso_level, forecasts$INDPRO)
-pca1_rmse <- rmse(forecasts$pca1_level, forecasts$INDPRO)
+  ar_rmse <- rmse(forecasts$ar_level, forecasts$INDPRO)
+  rw_rmse <- rmse(forecasts$rw_level, forecasts$INDPRO)
+  ols_rmse <- rmse(forecasts$ols_level, forecasts$INDPRO)
+  ridge_rmse <- rmse(forecasts$ridge_level, forecasts$INDPRO)
+  lasso_rmse <- rmse(forecasts$lasso_level, forecasts$INDPRO)
+  pca1_rmse <- rmse(forecasts$pca1_level, forecasts$INDPRO)
 
   # =============================================================================
   # GRAPHING
