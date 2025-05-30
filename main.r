@@ -203,11 +203,30 @@ for(i in 2:ncol(forecasts)){
 # =============================================================================
 # GRAPHING
 # =============================================================================
-forecasts %>% ggplot(aes(x = as.Date(sasdate, format = "%m/%d/%y"))) +
+forecasts_h <- forecasts %>%
+  pivot_longer(
+    cols = !c(sasdate,INDPRO),
+    names_to = "model",
+    values_to = "value"
+      )
+
+forecasts_h %>% ggplot(aes(x = as.Date(sasdate, format = "%m/%d/%y"), y = value, colour = model)) +
+  facet_wrap(vars(model))+
+  geom_line()+
+  xlab("Date")+
+  ylab("Value")+
+  theme_grey()+
+  scale_fill_paletteer_d("MoMAColors::Abbott")+
+  legen
+
+forecasts %>% ggplot(aes(x = as.Date(sasdate, format = "%m/%d/%y"), y = value)) +
   geom_line(aes(y = INDPRO), color = "black") + 
   geom_line(aes(y = ar_level), color = "blue") +
   geom_line(aes(y = rw_level), color = "red") +
   geom_line(aes(y = ols_level), color = "green") +
   geom_line(aes(y = ridge_level), color = "yellow") +
   geom_line(aes(y = lasso_level), color = "magenta") +
-  geom_line(aes(y = pca1_level), color = "cyan")
+  geom_line(aes(y = pca1_level), color = "cyan")+
+  xlab("Date")+
+  ylab("Value")+
+  theme_grey()
