@@ -70,7 +70,7 @@ cpi <- list(
   stdev = train_stdev$PCEPI
 )
 
-main <- function(variable) {
+modelling <- function(variable) {
   # =============================================================================
   # AR MODELS
   # =============================================================================
@@ -217,18 +217,37 @@ main <- function(variable) {
   lasso_rmse <- rmse(forecasts$lasso_level, forecasts$orig_test)
   pca1_rmse <- rmse(forecasts$pca1_level, forecasts$orig_test)
 
-  # =============================================================================
-  # GRAPHING
-  # =============================================================================
-  forecasts %>% ggplot(aes(x = as.Date(sasdate, format = "%m/%d/%y"))) +
-    geom_line(aes(y = orig_test), color = "black") +
-    geom_line(aes(y = ar_level), color = "blue") +
-    geom_line(aes(y = rw_level), color = "red") +
-    geom_line(aes(y = ols_level), color = "green") +
-    geom_line(aes(y = ridge_level), color = "yellow") +
-    geom_line(aes(y = lasso_level), color = "magenta") +
-    geom_line(aes(y = pca1_level), color = "cyan")
+  return(list(
+    rmse = list(
+      ar = ar_rmse,
+      rw = rw_rmse,
+      ols = ols_rmse,
+      ridge = ridge_rmse,
+      lasso = lasso_rmse,
+      pca1 = pca1_rmse
+    ),
+    levels = list(
+      ar = ar_level,
+      rw = rw_level,
+      ols = ols_level,
+      ridge = ridge_level,
+      lasso = lasso_level,
+      pca1 = pca1_level
+    ),
+    forecasts = forecasts
+  ))
 }
 
-main(ipi)
-main(cpi)
+ipi_model <- modelling(ipi)
+
+# =============================================================================
+# GRAPHING
+# =============================================================================
+ipi_model$forecasts %>% ggplot(aes(x = as.Date(sasdate, format = "%m/%d/%y"))) +
+  geom_line(aes(y = orig_test), color = "black") +
+  geom_line(aes(y = ar_level), color = "blue") +
+  geom_line(aes(y = rw_level), color = "red") +
+  geom_line(aes(y = ols_level), color = "green") +
+  geom_line(aes(y = ridge_level), color = "yellow") +
+  geom_line(aes(y = lasso_level), color = "magenta") +
+  geom_line(aes(y = pca1_level), color = "cyan")
