@@ -106,10 +106,17 @@ autoregress_lm <- function(variable, p) {
 bic_ar <- function(variable, min = 1, max = (length(variable) - 1)) {
   n <- length(variable)
   bic_all <- matrix(, nrow = max, ncol = 2)
-  bic_all[, 1] <- min:max
+  bic_all[,1] <- min:max
   
   for (i in min:max) {
-    bic_all[i, 2] <- bic(autoregress_lm(variable, i))
+    bic_all[i,2] <- bic(autoregress_lm(variable, i))
+  }
+  
+  for(i in min:max){
+    if(bic_all[i,2] < bic_all[(i+1),2]){
+      p_min <- bic_all[i,1]
+      break
+    }
   }
   
   bic_all <- as.data.frame(bic_all)
@@ -119,14 +126,15 @@ bic_ar <- function(variable, min = 1, max = (length(variable) - 1)) {
   
   list <- list(
     bic_all = bic_all,
-    graph = graph
+    graph = graph,
+    p_min = p_min
   )
   
   return(list)
 }
 
 # =============================================================================
-# MULTIVAR MODELS
+# MULTIVARIATE MODELS
 # =============================================================================
 
 multivar <- function(y, x, opt, lambda) {
@@ -191,22 +199,22 @@ bic_mvar <- function(y, x, opt) {
 }
 
 # =============================================================================
-# PRINCIPAL COMPONENTS ANALYSIS
+# PRINCIPAL COMPONENT REGRESSION
 # =============================================================================
-pca <- function(data, r = ncol(data)){
+pcr <- function(data, r = ncol(data)){
   fac <- ((as.matrix(data) %*% as.matrix(rev(as.data.frame(eigen((t(as.matrix(data)) %*% as.matrix(data)))$vectors)))[,1:r])/sqrt(nrow(data)))
   fac <- fac[1:(nrow(fac)-1),]
   
   return(fac)
 }
 
-bic_pca <- function(y, x) {
+bic_pcr <- function(y, x) {
   max <- ncol(x)
   bic_all <- matrix(, nrow = max, ncol = 2)
   bic_all[,1] <- 1:max
   
   for (i in 1:max) {
-    bic_all[i, 2] <- bic(lm(y[-1,] ~ pca(x)[,1:i]))
+    bic_all[i, 2] <- bic(lm(y[-1,] ~ pcr(x)[,1:i]))
   }
   
   bic_all <- as.data.frame(bic_all)
@@ -215,7 +223,8 @@ bic_pca <- function(y, x) {
   
   list <- list(
     bic_all = bic_all,
-    graph = graph 
+    graph = graph,
+    r_min = bic_all[bic_all[,2] == min(bic_all[,2]),1]
   )
   return(list)
 }
@@ -286,7 +295,7 @@ forecast_rw <- function(model, training, test){
   return(result)
 }
 
-forecast_pca <- function(model, training, test){
+forecast_pcr <- function(model, training, test){
   data <- rbind(training, test)
   coefs <- as.matrix(model$coefficients)
   int <- coefs[1]
@@ -295,7 +304,7 @@ forecast_pca <- function(model, training, test){
   result <- c()
   
   for(i in 1:nrow(test)){
-    f <- pca(data[1:(nrow(training)+i),], r)
+    f <- pcr(data[1:(nrow(training)+i),], r)
     pred <- (f %*% coefs)
     result[i] <- pred[nrow(pred)] + int
   }

@@ -72,18 +72,16 @@ cpi <- list(
 
 modelling <- function(variable) {
   # =============================================================================
-  # AR MODELS
+  # AUTOREGRESSIVE MODELS
   # =============================================================================
 
-  # AR1 Model
-  ar1 <- autoregress_lm(variable$std, 1)
-  bic(ar1)
+  # AR(1)
+  autoregress_lm(variable$std, 1)
+  bic(autoregress_lm(variable$std, 1))
 
-  # AR(p) model
-  bic_arp <- bic_ar(variable$std) # 1 is optimal
-  model_arp <- autoregress_lm(variable$std, 1)
-
-  bic(model_arp)
+  # AR(p)
+  bic_ar <- bic_ar(variable$std, max = 7)
+  model_ar <- autoregress_lm(variable$std, bic_ar$p_min)
 
   # =============================================================================
   # RANDOM WALK
@@ -95,47 +93,42 @@ modelling <- function(variable) {
   }
 
   random_var <- random_var[2:length(random_var), ]
-
   model_rw <- lm(random_var ~ 1)
 
   # =============================================================================
   # MULTIVARIATE MODELS
   # =============================================================================
 
-  ## OLS
+  # OLS
   model_ols <- multivar(variable$std, opt = "lm", x = train_std)
 
-  ## Ridge
+  # Ridge
   bic_ridge <- bic_mvar(variable$std, opt = "ridge", x = train_std)
   model_ridge <- multivar(variable$std, opt = "ridge", lambda = bic_ridge$lambda_min, x = train_std)
-
-  ## Lasso
+  
+  # Lasso
   bic_lasso <- bic_mvar(variable$std, opt = "lasso", x = train_std)
   model_lasso <- multivar(variable$std, opt = "lasso", lambda = bic_lasso$lambda_min, x = train_std)
 
   # =============================================================================
-  # PRINCIPAL COMPONENTS ANALYSIS
+  # PRINCIPAL COMPONENT REGRESSION
   # =============================================================================
 
-  notquite <- prcomp(train_std)
-  summary(notquite)
-  fviz_eig(notquite, addlabels = TRUE)
-  plot(summary(notquite)$importance[3, ])
+  prs <- prcomp(train_std)
+  summary(prs)
+  fviz_eig(prs, addlabels = TRUE)
+  plot(summary(prs)$importance[3, ])
 
-  f_var <- pca(train_std)
-
-  variable$pca1 <- lm(variable$std[-1, ] ~ f_var[, 1])
-  variable$pca6 <- lm(variable$std[-1, ] ~ f_var[, 1:6])
-
-  # bic_pca(y = variable$std, x = f_var)
+  bic_pcr <- bic_pcr(variable$std, train_std)
+  model_pcr <- lm(variable$std[-1, ] ~ pcr(train_std, bic_pcr$r_min))
 
   # =============================================================================
   # FORECASTING THE STANDARDIZED DATA
   # =============================================================================
 
   # AR(p)
-  forecast_ar(model_arp, variable$std, variable$std_test)
-  ar <- (variable$stdev * forecast_ar(model_arp, variable$std, variable$std_test)) + variable$mean
+  forecast_ar(model_ar, variable$std, variable$std_test)
+  ar <- (variable$stdev * forecast_ar(model_ar, variable$std, variable$std_test)) + variable$mean
 
   # Random Walk
   forecast_rw(model_rw, variable$std, variable$std_test)
@@ -153,12 +146,9 @@ modelling <- function(variable) {
   forecast_mvar(model_lasso, train_std, test_std)
   lasso <- (variable$stdev * forecast_mvar(model_lasso, train_std, test_std)) + variable$mean
 
-  # PCA
-  forecast_pca(variable$pca1, train_std, test_std)
-  pca_1 <- (variable$stdev * forecast_pca(variable$pca1, train_std, test_std)) + variable$mean
-
-  forecast_pca(variable$pca6, train_std, test_std)
-  pca_6 <- (variable$stdev * forecast_pca(variable$pca6, train_std, test_std)) + variable$mean
+  # PCR
+  forecast_pcr(model_pcr, train_std, test_std)
+  pcr <- (variable$stdev * forecast_pcr(model_pcr, train_std, test_std)) + variable$mean
 
   # =============================================================================
   # LEVELING THE FORECASTS
@@ -194,11 +184,10 @@ modelling <- function(variable) {
   # Lasso
   lasso_level <- exp(lasso + level)
 
-  # PCA
-  pca1_level <- exp(pca_1 + level)
-  pca6_level <- exp(pca_6 + level)
+  # PCR
+  pcr_level <- exp(pcr + level)
 
-  forecasts <- cbind(test$sasdate, variable$orig_test, ar_level, rw_level, ols_level, ridge_level, lasso_level, pca1_level, pca6_level) %>%
+  forecasts <- cbind(test$sasdate, variable$orig_test, ar_level, rw_level, ols_level, ridge_level, lasso_level, pcr_level) %>%
     as.data.frame() %>%
     rename(sasdate = V1, orig_test = V2)
 
@@ -215,7 +204,7 @@ modelling <- function(variable) {
   ols_rmse <- rmse(forecasts$ols_level, forecasts$orig_test)
   ridge_rmse <- rmse(forecasts$ridge_level, forecasts$orig_test)
   lasso_rmse <- rmse(forecasts$lasso_level, forecasts$orig_test)
-  pca1_rmse <- rmse(forecasts$pca1_level, forecasts$orig_test)
+  pcr_rmse <- rmse(forecasts$pcr_level, forecasts$orig_test)
 
   return(list(
     rmse = list(
@@ -224,7 +213,7 @@ modelling <- function(variable) {
       ols = ols_rmse,
       ridge = ridge_rmse,
       lasso = lasso_rmse,
-      pca1 = pca1_rmse
+      pcr = pcr_rmse
     ),
     levels = list(
       ar = ar_level,
@@ -232,27 +221,35 @@ modelling <- function(variable) {
       ols = ols_level,
       ridge = ridge_level,
       lasso = lasso_level,
-      pca1 = pca1_level
+      pcr = pcr_level
+    ),
+    models = list(
+      ar = model_ar,
+      rw = model_rw,
+      ols = model_ols,
+      ridge = model_ridge,
+      lasso = model_lasso,
+      pcr = model_pcr
     ),
     forecasts = forecasts
   ))
 }
 
 ipi_model <- modelling(ipi)
+cpi_model <- modelling(cpi)
 
 # =============================================================================
 # GRAPHING
 # =============================================================================
-var_lables <- c(
+var_labels <- c(
   `ar_level` = "Autoregression",
   `lasso_level` = "Lasso",
   `ols_level` = "OLS",
-  `pca1_level` = "Principal Component Regression",
+  `pcr_level` = "Principal Component Regression",
   `ridge_level` = "Ridge",
   `rw_level` = "Random Walk")
 
 ipi_pivot <- ipi_model$forecasts %>%
-  select(!pca6_level) %>%
   pivot_longer(
     cols = !c(sasdate,orig_test),
     names_to = "model",
@@ -260,13 +257,11 @@ ipi_pivot <- ipi_model$forecasts %>%
   )
 
 cpi_pivot <- cpi_model$forecasts %>%
-  select(!pca6_level) %>%
   pivot_longer(
     cols = !c(sasdate, orig_test),
     names_to = "model",
     values_to = "value"
   )
-
 
 ipi_model$forecasts %>% ggplot(aes(x = as.Date(sasdate, format = "%m/%d/%y"), y = value)) +
   geom_line(aes(y = orig_test), color = "black") + 
@@ -275,7 +270,7 @@ ipi_model$forecasts %>% ggplot(aes(x = as.Date(sasdate, format = "%m/%d/%y"), y 
   geom_line(aes(y = ols_level), color = "green") +
   geom_line(aes(y = ridge_level), color = "yellow") +
   geom_line(aes(y = lasso_level), color = "magenta") +
-  geom_line(aes(y = pca1_level), color = "cyan")+
+  geom_line(aes(y = pcr_level), color = "cyan")+
   xlab("Date")+
   ylab("Value")+
   ggtitle("Overall comparison for IPI")+
@@ -288,7 +283,7 @@ cpi_model$forecasts %>% ggplot(aes(x = as.Date(sasdate, format = "%m/%d/%y"), y 
   geom_line(aes(y = ols_level), color = "green") +
   geom_line(aes(y = ridge_level), color = "yellow") +
   geom_line(aes(y = lasso_level), color = "magenta") +
-  geom_line(aes(y = pca1_level), color = "cyan")+
+  geom_line(aes(y = pcr_level), color = "cyan")+
   xlab("Date")+
   ylab("Value")+
   ggtitle("Overall comparison for CPI")+
@@ -296,22 +291,22 @@ cpi_model$forecasts %>% ggplot(aes(x = as.Date(sasdate, format = "%m/%d/%y"), y 
 
 ipi_pivot %>% ggplot(aes(x = as.Date(sasdate, format = "%m/%d/%y"))) +
   geom_line(aes(y = orig_test))+
-  facet_wrap(vars(model), labeller = as_labeller(var_lables))+
+  facet_wrap(vars(model), labeller = as_labeller(var_labels))+
   geom_line(aes(y = value, colour = model))+
   xlab("Date")+
   ylab("Value")+
   theme_grey()+
   theme(legend.position = "none")+
-  ggtitle("Graphical Comparison of Estimated models for IPI", subtitle = "Black are INDPRO values")+
+  ggtitle("Graphical Comparison of Estimated models for IPI", subtitle = "INDPRO values are in black.")+
   scale_fill_paletteer_d("MoMAColors::Abbott")
 
 cpi_pivot %>% ggplot(aes(x = as.Date(sasdate, format = "%m/%d/%y"))) +
   geom_line(aes(y = orig_test))+
-  facet_wrap(vars(model), labeller = as_labeller(var_lables))+
+  facet_wrap(vars(model), labeller = as_labeller(var_labels))+
   geom_line(aes(y = value, colour = model))+
   xlab("Date")+
   ylab("Value")+
   theme_grey()+
   theme(legend.position = "none")+
-  ggtitle("Graphical Comparison of Estimated models for CPI", subtitle = "Black are Cpi values")+
+  ggtitle("Graphical Comparison of Estimated models for CPI", subtitle = "CPI values are in black.")+
   scale_fill_paletteer_d("MoMAColors::Abbott")
