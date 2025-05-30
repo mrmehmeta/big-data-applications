@@ -48,6 +48,7 @@ ipi_std <- train_std$INDPRO
 ipistd_test <- test_std$INDPRO
 ipi_mean <- train_mean$INDPRO
 ipi_stdev <- train_stdev$INDPRO
+
 # cpi <- training$PCEPI
 # cpi_std <- train_std$PCEPI
 # cpi_stdtest <- test_std$PCEPI
@@ -78,7 +79,7 @@ model_arp <- autoregress_lm(ipi_std, 1)
 
 bic(model_arp)
 
-# cpi_bic_arp <- bic_ar(cpi_std, max = 10) # 5 is optimal
+# cpi_bic_arp <- bic_ar(cpi_std, max = 10) 
 # cpi_arp <- autoregress_lm(cpi_std, 1)
 # bic(cpi_arp)
 
@@ -142,7 +143,7 @@ F_ipi <- pca(train_std)
 ipi_pca1 <- lm(ipi_std[-1,] ~ F_ipi[,1])
 ipi_pca6 <- lm(ipi_std[-1,] ~ F_ipi[,1:6])
 
-# TODO: bic_p# TODO: bic_p# TODO: bic_pca(data = ipi_std, regressors = Fn_ipi)
+# TODO: bic_p# TODO: bic_pca(data = ipi_std, regressors = Fn_ipi)
 
 # =============================================================================
 # FORECASTING THE STANDARDIZED DATA
