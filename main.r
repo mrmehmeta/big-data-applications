@@ -56,7 +56,7 @@ cpi <- list(
   id = "cpi",
   value = training$PCEPI,
   std = train_std$PCEPI,
-  stdtest = test_std$PCEPI,
+  std_test = test_std$PCEPI,
   mean = train_mean$PCEPI,
   stdev = train_stdev$PCEPI
 )
