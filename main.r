@@ -215,9 +215,18 @@ pca1_level <- exp(pca_1 + level)
 pca6_level <- exp(pca_6 + level)
 
 # Merging the forecasts with the dates and observed values
-forecasts <- cbind(test$sasdate, test$INDPRO, ar_level, rw_level, ols_level, ridge_level, lasso_level, pca1_level, pca6_level) %>% 
+test_orig <- data_orig[2:nrow(data_orig),] %>% 
+  mutate(sasdate = as.character(as.Date(sasdate, format = "%m/%d/%Y"))) %>% 
+  filter(sasdate %in% teststd_wdate$sasdate) %>% 
+  arrange(as.Date(sasdate))
+
+forecasts <- cbind(test$sasdate, test_orig$INDPRO, ar_level, rw_level, ols_level, ridge_level, lasso_level, pca1_level, pca6_level) %>% 
   as.data.frame() %>% 
   rename(sasdate = V1, INDPRO = V2)
+
+for(i in 2:ncol(forecasts)){
+  forecasts[,i] <- as.numeric(forecasts[,i])
+}
 
 # =============================================================================
 # CALCULATING RMSE
@@ -227,4 +236,11 @@ forecasts <- cbind(test$sasdate, test$INDPRO, ar_level, rw_level, ols_level, rid
 # =============================================================================
 # GRAPHING
 # =============================================================================
-
+forecasts %>% ggplot(aes(x = as.Date(sasdate, format = "%m/%d/%y"))) +
+  geom_line(aes(y = INDPRO), color = "black") + 
+  geom_line(aes(y = ar_level), color = "blue") +
+  geom_line(aes(y = rw_level), color = "red") +
+  geom_line(aes(y = ols_level), color = "green") +
+  geom_line(aes(y = ridge_level), color = "yellow") +
+  geom_line(aes(y = lasso_level), color = "magenta") +
+  geom_line(aes(y = pca1_level), color = "cyan")
