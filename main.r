@@ -213,6 +213,11 @@ lasso_level <- exp(lasso + level)
 pca1_level <- exp(pca_1 + level)
 pca6_level <- exp(pca_6 + level)
 
+# Merging the forecasts with the dates and observed values
+forecasts <- cbind(test$sasdate, test$INDPRO, ar_level, rw_level, ols_level, ridge_level, lasso_level, pca1_level, pca6_level) %>% 
+  as.data.frame() %>% 
+  rename(sasdate = V1, INDPRO = V2)
+
 # =============================================================================
 # CALCULATING RMSE
 # =============================================================================
