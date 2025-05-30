@@ -59,29 +59,15 @@ ipi_stdev <- train_stdev$INDPRO
 # AR MODELS
 # =============================================================================
 
-# AR1 Model
+# AR(1) Model
 ipi_ar1 <- autoregress_lm(ipi_std, 1)
 bic(ipi_ar1)
-
-# cpi_ar1 <- autoregress_lm(cpi_std, 1)
-# bic(cpi_ar1)
-
-# AR(2) Model
-# ipi_ar2 <- autoregress_lm(ipi_std, 2)
-# bic(ipi_ar2)
-
-# cpi_ar2 <- autoregress_lm(cpi_std, 2)
-# bic(cpi_ar2)
 
 # AR(p) model
 bic_arp <- bic_ar(ipi_std) # 1 is optimal
 model_arp <- autoregress_lm(ipi_std, 1)
 
 bic(model_arp)
-
-# cpi_bic_arp <- bic_ar(cpi_std, max = 10) 
-# cpi_arp <- autoregress_lm(cpi_std, 1)
-# bic(cpi_arp)
 
 # =============================================================================
 # RANDOM WALK
@@ -124,26 +110,11 @@ summary(notquite)
 fviz_eig(notquite, addlabels = TRUE)
 plot(summary(notquite)$importance[3,])
 
-
-# gam_pca <- (t(as.matrix(train_std)) %*% as.matrix(train_std))
-# eigenstuff <- eigen(gam_pca)
-# 
-# ipi_eval <- rev(eigenstuff$values)
-# ipi_evec <- as.matrix(rev(as.data.frame(eigenstuff$vectors)))
-# 
-# F1_ipi <- (as.matrix(train_std) %*% ipi_evec[,1])/sqrt(nrow(train_std))
-# F6_ipi <- (as.matrix(train_std) %*% ipi_evec[,1:6])/sqrt(nrow(train_std))
-# Fn_ipi <- (as.matrix(train_std) %*% ipi_evec)/sqrt(nrow(train_std))
-# 
-# ipi_pca1 <- lm(ipi_std[-1,] ~ F1_ipi[-nrow(F1_ipi),])
-# ipi_pca6 <- lm(ipi_std[-1,] ~ F6_ipi[-nrow(F6_ipi),])
-
 F_ipi <- pca(train_std)
 
 ipi_pca1 <- lm(ipi_std[-1,] ~ F_ipi[,1])
-ipi_pca6 <- lm(ipi_std[-1,] ~ F_ipi[,1:6])
 
-# TODO: bic_p# TODO: bic_pca(data = ipi_std, regressors = Fn_ipi)
+bic_pca(ipi_std, train_std)
 
 # =============================================================================
 # FORECASTING THE STANDARDIZED DATA
@@ -172,9 +143,6 @@ lasso <- (ipi_stdev * forecast_mvar(model_lasso, train_std, test_std)) + ipi_mea
 # PCA
 forecast_pca(ipi_pca1, train_std, test_std)
 pca_1 <- (ipi_stdev * forecast_pca(ipi_pca1, train_std, test_std)) + ipi_mean
-
-forecast_pca(ipi_pca6, train_std, test_std)
-pca_6 <- (ipi_stdev * forecast_pca(ipi_pca6, train_std, test_std)) + ipi_mean
 
 # =============================================================================
 # LEVELING THE FORECASTS
@@ -212,7 +180,6 @@ lasso_level <- exp(lasso + level)
 
 # PCA
 pca1_level <- exp(pca_1 + level)
-pca6_level <- exp(pca_6 + level)
 
 # Merging the forecasts with the dates and observed values
 test_orig <- data_orig[2:nrow(data_orig),] %>% 
@@ -220,7 +187,7 @@ test_orig <- data_orig[2:nrow(data_orig),] %>%
   filter(sasdate %in% teststd_wdate$sasdate) %>% 
   arrange(as.Date(sasdate))
 
-forecasts <- cbind(test$sasdate, test_orig$INDPRO, ar_level, rw_level, ols_level, ridge_level, lasso_level, pca1_level, pca6_level) %>% 
+forecasts <- cbind(test$sasdate, test_orig$INDPRO, ar_level, rw_level, ols_level, ridge_level, lasso_level, pca1_level) %>% 
   as.data.frame() %>% 
   rename(sasdate = V1, INDPRO = V2)
 

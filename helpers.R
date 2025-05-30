@@ -200,16 +200,13 @@ pca <- function(data, r = ncol(data)){
   return(fac)
 }
 
-# TODO: find will to live and write this function
-bic_pca <- function(data, regressors) {
-  max <- ncol(regressors)
-  regressors <- regressors[-max,]
-  data <- data[-1,]
+bic_pca <- function(y, x) {
+  max <- ncol(x)
   bic_all <- matrix(, nrow = max, ncol = 2)
-  bic_all <- 1:max
+  bic_all[,1] <- 1:max
   
-  for (i in 1:ncol(regressors)) {
-    bic_all[i, 2] <- bic(lm(data ~ regressors[,1:i]))
+  for (i in 1:max) {
+    bic_all[i, 2] <- bic(lm(y[-1,] ~ pca(x)[,1:i]))
   }
   
   bic_all <- as.data.frame(bic_all)
