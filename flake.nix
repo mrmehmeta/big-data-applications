@@ -57,6 +57,7 @@
           rPackages.FactoMineR
           rPackages.factoextra
           rPackages.corrplot
+          rPackages.paletteer
         ];
         shellHook = ''
           nu
