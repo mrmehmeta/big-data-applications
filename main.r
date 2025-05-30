@@ -118,7 +118,7 @@ main <- function(variable) {
   variable$pca1 <- lm(variable$std[-1, ] ~ f_var[, 1])
   variable$pca6 <- lm(variable$std[-1, ] ~ f_var[, 1:6])
 
-  # TODO: bic_p# TODO: bic_pca(data = variable$std, regressors = Fn_ipi)
+  bic_pca(y = variable$std, x = f_var)
 
   # =============================================================================
   # FORECASTING THE STANDARDIZED DATA
