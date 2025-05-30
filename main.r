@@ -315,5 +315,3 @@ cpi_pivot %>% ggplot(aes(x = as.Date(sasdate, format = "%m/%d/%y"))) +
   theme(legend.position = "none")+
   ggtitle("Graphical Comparison of Estimated models for CPI", subtitle = "Black are Cpi values")+
   scale_fill_paletteer_d("MoMAColors::Abbott")
-
-
