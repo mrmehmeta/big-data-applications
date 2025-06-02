@@ -245,6 +245,11 @@ ipi_model <- modelling(ipi)
 cpi_model <- modelling(cpi)
 
 # =============================================================================
+# RMSE TABLES
+# =============================================================================
+as_tibble(ipi_model$rmse)
+as_tibble(cpi_model$rmse)
+# =============================================================================
 # GRAPHING
 # =============================================================================
 ipi_model$plots$ar$graph + ggtitle("Bic by p in Autoregression", subtitle = "For IPI")
