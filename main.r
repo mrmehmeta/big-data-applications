@@ -80,8 +80,8 @@ modelling <- function(variable) {
   bic(autoregress_lm(variable$std, 1))
 
   # AR(p)
-  bic_ar <- bic_ar(variable$std, max = 7)
-  model_ar <- autoregress_lm(variable$std, bic_ar$p_min)
+  ar_bic <- bic_ar(variable$std, max = 7)
+  model_ar <- autoregress_lm(variable$std, ar_bic$p_min)
 
   # =============================================================================
   # RANDOM WALK
@@ -103,12 +103,12 @@ modelling <- function(variable) {
   model_ols <- multivar(variable$std, opt = "lm", x = train_std)
 
   # Ridge
-  bic_ridge <- bic_mvar(variable$std, opt = "ridge", x = train_std)
-  model_ridge <- multivar(variable$std, opt = "ridge", lambda = bic_ridge$lambda_min, x = train_std)
+  ridge_bic <- bic_mvar(variable$std, opt = "ridge", x = train_std)
+  model_ridge <- multivar(variable$std, opt = "ridge", lambda = ridge_bic$lambda_min, x = train_std)
   
   # Lasso
-  bic_lasso <- bic_mvar(variable$std, opt = "lasso", x = train_std)
-  model_lasso <- multivar(variable$std, opt = "lasso", lambda = bic_lasso$lambda_min, x = train_std)
+  lasso_bic <- bic_mvar(variable$std, opt = "lasso", x = train_std)
+  model_lasso <- multivar(variable$std, opt = "lasso", lambda = lasso_bic$lambda_min, x = train_std)
 
   # =============================================================================
   # PRINCIPAL COMPONENT REGRESSION
@@ -119,8 +119,8 @@ modelling <- function(variable) {
   fviz_eig(prs, addlabels = TRUE)
   plot(summary(prs)$importance[3, ])
 
-  bic_pcr <- bic_pcr(variable$std, train_std)
-  model_pcr <- lm(variable$std[-1, ] ~ pcr(train_std, bic_pcr$r_min))
+  pcr_bic <- bic_pcr(variable$std, train_std)
+  model_pcr <- lm(variable$std[-1, ] ~ pcr(train_std, pcr_bic$r_min))
 
   # =============================================================================
   # FORECASTING THE STANDARDIZED DATA
@@ -231,6 +231,12 @@ modelling <- function(variable) {
       lasso = model_lasso,
       pcr = model_pcr
     ),
+    plots = list(
+      ar = ar_bic,
+      ridge = ridge_bic,
+      lasso = lasso_bic,
+      pcr = pcr_bic
+    ),
     forecasts = forecasts
   ))
 }
@@ -241,6 +247,16 @@ cpi_model <- modelling(cpi)
 # =============================================================================
 # GRAPHING
 # =============================================================================
+ipi_model$plots$ar$graph + ggtitle("Bic by p in Autoregression", subtitle = "For IPI")
+ipi_model$plots$ridge$graph + ggtitle("Bic by lambda in Ridge", subtitle = "For IPI")
+ipi_model$plots$lasso$graph + ggtitle("Bic by lambda in Lasso", subtitle = "For IPI")
+ipi_model$plots$pcr$graph + ggtitle("Bic by r in Principal Component Regression", subtitle = "For IPI")
+
+cpi_model$plots$ar$graph + ggtitle("Bic by p in Autoregression", subtitle = "For CPI")
+cpi_model$plots$ridge$graph + ggtitle("Bic by lambda in Ridge", subtitle = "For CPI")
+cpi_model$plots$lasso$graph + ggtitle("Bic by lambda in Lasso", subtitle = "For CPI")
+cpi_model$plots$pcr$graph + ggtitle("Bic by r in Principal Component Regression", subtitle = "For CPI")
+
 var_labels <- c(
   `ar_level` = "Autoregression",
   `lasso_level` = "Lasso",
