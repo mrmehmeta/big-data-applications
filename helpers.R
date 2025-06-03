@@ -13,8 +13,8 @@ library(paletteer)
 # BIC CALCULATIONS
 # =============================================================================
 
-bic <- function(model, lambda = NULL, data = NULL) {
-  bic_ols <- function(model) {
+bic <- function (model, lambda = NULL, data = NULL) {
+  bic_ols <- function (model) {
     p <- (model$rank - 1)
     data <- (model$residuals + model$fitted.values)
     ssr <- sum((model$residuals)^2)
@@ -22,7 +22,7 @@ bic <- function(model, lambda = NULL, data = NULL) {
     return(log(ssr / n) + ((p + 1) * log(n) / n))
   }
   
-  bic_lasso <- function(model, data) {
+  bic_lasso <- function (model, data) {
     p <- (model$df)
     y <- data[, 1]
     x <- as.matrix(data[, -1])
@@ -40,8 +40,8 @@ bic <- function(model, lambda = NULL, data = NULL) {
   }
   
   
-  bic_ridge <- function(model, lambda) {
-    trace <- function(m) {
+  bic_ridge <- function (model, lambda) {
+    trace <- function (m) {
       n <- dim(m)[1]
       tr <- 0
       for (i in 1:n) {
@@ -81,7 +81,7 @@ bic <- function(model, lambda = NULL, data = NULL) {
 # AUTOREGRESSIVE MODELS
 # =============================================================================
 
-autoregress <- function(variable, p) {
+autoregress <- function (variable, p) {
   n <- nrow(variable)
   y <- variable[-c(1:p)]
   
@@ -99,22 +99,22 @@ autoregress <- function(variable, p) {
   return(list)
 }
 
-autoregress_lm <- function(variable, p) {
+autoregress_lm <- function (variable, p) {
   return(lm(autoregress(variable, p)$y ~ autoregress(variable, p)$x))
 }
 
-bic_ar <- function(variable, min = 1, max = (length(variable) - 1)) {
+bic_ar <- function (variable, min = 1, max = (length(variable) - 1)) {
   n <- length(variable)
   bic_all <- matrix(, nrow = max, ncol = 2)
-  bic_all[,1] <- min:max
+  bic_all[, 1] <- min:max
   
   for (i in min:max) {
-    bic_all[i,2] <- bic(autoregress_lm(variable, i))
+    bic_all[i, 2] <- bic(autoregress_lm(variable, i))
   }
   
-  for(i in min:max){
-    if(bic_all[i,2] < bic_all[(i+1),2]){
-      p_min <- bic_all[i,1]
+  for (i in min:max){
+    if (bic_all[i, 2] < bic_all[(i+1),2]) {
+      p_min <- bic_all[i, 1]
       break
     }
   }
@@ -139,7 +139,7 @@ bic_ar <- function(variable, min = 1, max = (length(variable) - 1)) {
 # MULTIVARIATE MODELS
 # =============================================================================
 
-multivar <- function(y, x, opt, lambda) {
+multivar <- function (y, x, opt, lambda) {
   n <- nrow(x)
   y <- y[-1]
   x <- x[1:(n - 1), ]
@@ -160,7 +160,7 @@ multivar <- function(y, x, opt, lambda) {
   return(model)
 }
 
-bic_mvar <- function(y, x, opt) {
+bic_mvar <- function (y, x, opt) {
   if (opt == "lasso") {
     lambdas <- exp(seq(log(0.001), log(1), length.out = 100))
   } else {
@@ -194,7 +194,7 @@ bic_mvar <- function(y, x, opt) {
   list <- list(
     bic_all = bic_all,
     graph = graph,
-    lambda_min = bic_all[bic_all[,2] == min(bic_all[,2]),1]
+    lambda_min = bic_all[bic_all[, 2] == min(bic_all[, 2]), 1]
   )
   
   return(list)
@@ -203,20 +203,20 @@ bic_mvar <- function(y, x, opt) {
 # =============================================================================
 # PRINCIPAL COMPONENT REGRESSION
 # =============================================================================
-pcr <- function(data, r = ncol(data)){
-  fac <- ((as.matrix(data) %*% as.matrix(rev(as.data.frame(eigen((t(as.matrix(data)) %*% as.matrix(data)))$vectors)))[,1:r])/sqrt(nrow(data)))
-  fac <- fac[1:(nrow(fac)-1),]
+pcr <- function (data, r = ncol(data)) {
+  fac <- ((as.matrix(data) %*% as.matrix(rev(as.data.frame(eigen((t(as.matrix(data)) %*% as.matrix(data)))$vectors)))[, 1:r])/sqrt(nrow(data)))
+  fac <- fac[1:(nrow(fac)-1), ]
   
   return(fac)
 }
 
-bic_pcr <- function(y, x) {
+bic_pcr <- function (y, x) {
   max <- ncol(x)
   bic_all <- matrix(, nrow = max, ncol = 2)
-  bic_all[,1] <- 1:max
+  bic_all[, 1] <- 1:max
   
   for (i in 1:max) {
-    bic_all[i, 2] <- bic(lm(y[-1,] ~ pcr(x)[,1:i]))
+    bic_all[i, 2] <- bic(lm(y[-1, ] ~ pcr(x)[, 1:i]))
   }
   
   bic_all <- as.data.frame(bic_all)
@@ -228,7 +228,7 @@ bic_pcr <- function(y, x) {
   list <- list(
     bic_all = bic_all,
     graph = graph,
-    r_min = bic_all[bic_all[,2] == min(bic_all[,2]),1]
+    r_min = bic_all[bic_all[, 2] == min(bic_all[, 2]), 1]
   )
   return(list)
 }
@@ -246,7 +246,7 @@ forecast_ar <- function(model, training, test) {
   m <- matrix(, nrow = nrow(test), ncol = p)
   
   for (i in 1:nrow(test)) {
-    m[i,] <- data[(nrow(training) + i - 1):(nrow(training) + i - p),]
+    m[i, ] <- data[(nrow(training) + i - 1):(nrow(training) + i - p), ]
   }
   
   for (i in 1:ncol(m)) {
@@ -258,7 +258,7 @@ forecast_ar <- function(model, training, test) {
   return(result)
 }
 
-forecast_mvar <- function(model, training, test) {
+forecast_mvar <- function (model, training, test) {
   data <- rbind(training, test)
   
   if (length(class(model)) > 1) {
@@ -280,7 +280,7 @@ forecast_mvar <- function(model, training, test) {
   
   int <- coefs[1]
   coefs <- coefs[-1]
-  m <- data[nrow(training):(nrow(data)-1),]
+  m <- data[nrow(training):(nrow(data)-1), ]
   
   for (i in 1:ncol(m)) {
     m[, i] <- m[, i] * coefs[i]
@@ -291,15 +291,15 @@ forecast_mvar <- function(model, training, test) {
   return(result)
 }
 
-forecast_rw <- function(model, training, test){
+forecast_rw <- function (model, training, test){
   data <- rbind(training, test)
   coef <- as.vector(model$coefficients)[1]
-  result <- as.vector(data[nrow(training):(nrow(data)-1),]) + coef
+  result <- as.vector(data[nrow(training):(nrow(data)-1), ]) + coef
   
   return(result)
 }
 
-forecast_pcr <- function(model, training, test){
+forecast_pcr <- function (model, training, test) {
   data <- rbind(training, test)
   coefs <- as.matrix(model$coefficients)
   int <- coefs[1]
@@ -308,7 +308,7 @@ forecast_pcr <- function(model, training, test){
   result <- c()
   
   for(i in 1:nrow(test)){
-    f <- pcr(data[1:(nrow(training)+i),], r)
+    f <- pcr(data[1:(nrow(training)+i), ], r)
     pred <- (f %*% coefs)
     result[i] <- pred[nrow(pred)] + int
   }
@@ -319,6 +319,6 @@ forecast_pcr <- function(model, training, test){
 # =============================================================================
 # CALCULATING RMSE
 # =============================================================================
-rmse <- function(pred, observed){
+rmse <- function (pred, observed) {
   return(sqrt((sum((pred - observed)^2))/length(observed)))
 }
